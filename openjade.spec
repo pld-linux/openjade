@@ -2,7 +2,7 @@ Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name: 		openjade
 Version: 	1.4
-Release: 	2.20000320
+Release: 	3.20000320
 Provides:	dssslparser
 Prereq:		%{_sbindir}/fix-sgml-catalog
 Requires: 	sgml-common
@@ -13,7 +13,6 @@ Group:  	Applications/Publishing/SGML
 Group(pl):      Aplikacje/Publikowanie/SGML
 #Source:         http://download.sourceforge.net/openjade/%{name}-%{version}.tar.gz
 Source:         %{name}-20000320.tar.gz
-Source1: 	%{name}.cat
 Patch0:		%{name}-DESTDIR.patch
 URL:            http://openjade.sourceforge.net/
 BuildRequires:	opensp-devel >= 1.4-2
@@ -58,9 +57,8 @@ OpenJade static libraries.
 Biblioteki statyczne OpenJade.
 
 %prep
-%setup -q -n openjade-20000320
+%setup -q -n %{name}-20000320
 %patch -p1
-#%patch1 -p1
 
 %build
 
@@ -87,23 +85,17 @@ install -d $RPM_BUILD_ROOT{%{_datadir}/sgml/catalogs,%{_libdir}}
 
 make install DESTDIR=$RPM_BUILD_ROOT
 
-#cp -ar pubtext/* $RPM_BUILD_ROOT%{_datadir}/sgml/html
 cp -a unicode $RPM_BUILD_ROOT%{_datadir}/sgml
+ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}
 
-#mv $RPM_BUILD_ROOT/usr/bin/sx $RPM_BUILD_ROOT/usr/bin/sgml2xml
-#perl -pi -e 's/sx/sgml2xml/g; s/SX/SGML2XML/g;'   doc/*.htm 
+grep -v SYSTEM $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}/catalog \
+     > $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}/%{name}.cat
+ln -s ../%{name}/%{name}.cat $RPM_BUILD_ROOT%{_datadir}/sgml/catalogs/
 
-install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/sgml/catalogs
-
-#install dsssl/catalog $RPM_BUILD_ROOT%{_datadir}/sgml/openjade
-#install dsssl/*.dtd   $RPM_BUILD_ROOT%{_datadir}/sgml/openjade
-#install dsssl/*.dsl   $RPM_BUILD_ROOT%{_datadir}/sgml/openjade
-
-ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/openjade
+# simulate jade
 ln -s openjade $RPM_BUILD_ROOT%{_bindir}/jade
 
 strip --strip-unneeded $RPM_BUILD_ROOT%{_libdir}/lib*.so.*.*
-
 gzip -9nf COPYING README
 
 %find_lang OpenJade
