@@ -1,9 +1,9 @@
 %define		pre	1
-Summary:	OpenJade -- DSSSL parser
-Summary(pl):	OpenJade -- parser DSSSL
+Summary:	OpenJade - DSSSL parser
+Summary(pl):	OpenJade - parser DSSSL
 Name:		openjade
 Version:	1.3.3
-Release:	0.pre%{pre}.5
+Release:	0.pre%{pre}.1
 Epoch:		1
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
@@ -104,7 +104,7 @@ install -d $RPM_BUILD_ROOT%{_includedir}/OpenJade
 install include/*.h grove/Node.h spgrove/{GroveApp,GroveBuilder}.h \
 	style/{DssslApp,FOTBuilder}.h $RPM_BUILD_ROOT%{_includedir}/OpenJade
 
-%find_lang jade
+%find_lang openjade
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -129,7 +129,7 @@ if [ "$1" = "0" ] ; then
 		%{sgmldir}/%{name}-%{version}/catalog
 fi
 
-%files -f jade.lang
+%files -f openjade.lang
 %defattr(644,root,root,755)
 %doc COPYING ChangeLog NEWS README doc/*.htm jadedoc
 %attr(755,root,root) %{_bindir}/*
