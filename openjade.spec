@@ -1,9 +1,9 @@
 Summary:	OpenJade -- DSSSL parser
+Summary(pl):	OpenJade -- parser DSSSL
 Name: 		openjade
 ##Epoch:		1 #prepared for 1.3.1
 Version: 	20000320
 Release: 	1
-Summary(pl):	OpenJade -- parser DSSSL
 Provides:	dssslparser
 Prereq:		%{_sbindir}/fix-sgml-catalog
 Requires: 	sgml-common
@@ -24,10 +24,12 @@ Group:  	Applications/Publishing/SGML
 Group(pl):      Aplikacje/Publikowanie/SGML
 
 %description
-Jade (James' DSSSL Engine) is an implementation of the DSSSL style language. 
+Jade (James' DSSSL Engine) is an implementation of the DSSSL style language.
+OpenJade is successor of Jade.
 
 %description -l pl
 Jade (James' DSSSL Engine) jest implementacj± parsera DSSSL.
+OpenJade jest nastêpc± Jade
 
 %package devel
 Summary:	%{name} header files.
