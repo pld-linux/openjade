@@ -7,7 +7,7 @@ Provides:	dssslparser
 Prereq:		%{_sbindir}/fix-sgml-catalog
 Requires: 	sgml-common
 Requires:	sgmlparser
-Requires: 	opensp >= 1.4-1
+Requires: 	opensp >= 1.4-2
 Copyright:      Copyright (c) 1999 The OpenJade group (free)
 Group:  	Applications/Publishing/SGML
 Group(pl):      Aplikacje/Publikowanie/SGML
@@ -18,7 +18,7 @@ Patch0:		%{name}-DESTDIR.patch
 #Patch:		jade-debian.patch
 #Patch1:	jade-jumbo.patch
 URL:            http://openjade.sourceforge.net/
-BuildRequires:	opensp-devel >= 1.4-1
+BuildRequires:	opensp-devel >= 1.4-2
 BuildRequires:	perl
 BuildRequires:	gettext-devel
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
