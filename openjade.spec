@@ -3,7 +3,7 @@ Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name:		openjade
 Version:	1.4
-Release:	12.%{snap}
+Release:	12.%{snap}.1
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
 Source0:	OpenJade-%{version}devel.%{snap}.tar.gz
@@ -14,12 +14,13 @@ BuildRequires:	libtool
 BuildRequires:	gettext-devel
 BuildRequires:	opensp-devel >= 1.5
 BuildRequires:	perl
+Requires(post,postun):	/sbin/ldconfig
+Requires(post,postun):	sgml-common
+Requires:	opensp >= 1.5-2
+Requires:	sgml-common
+Requires:	sgmlparser
 Provides:	jade
 Provides:	dssslparser
-Requires:	sgmlparser
-Requires:	opensp >= 1.5
-Prereq:		sgml-common
-Prereq:		/sbin/ldconfig
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	jade
 
