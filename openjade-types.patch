@@ -1,0 +1,11 @@
+--- openjade-20020409/style/FlowObj.cxx.orig	Mon Aug 19 15:03:34 2002
++++ openjade-20020409/style/FlowObj.cxx	Mon Aug 19 16:12:24 2002
+@@ -3578,7 +3578,7 @@
+ #define FLOW_OBJ(name, string, feature) \
+ { FlowObj *tem = new (*this) name; \
+   /* Temporary debugging check.*/ \
+-  ASSERT(sizeof(name) <= 32); \
++  ASSERT(sizeof(name) <= 8*sizeof(void*)); \
+   makePermanent(tem); \
+   Identifier *ident = lookup(makeStringC(string)); \
+   ident->setFlowObj(tem); \
