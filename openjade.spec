@@ -71,7 +71,7 @@ libtoolize --copy --force
 aclocal
 echo "#undef SIZEOF_WCHAR_T" >> acconfig.h
 autoheader
-automake -a -c -f
+automake -a -c -f --foreign
 #aclocal
 autoconf
 %ifarch alpha
