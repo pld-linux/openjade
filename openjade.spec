@@ -3,7 +3,7 @@ Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name:		openjade
 Version:	1.4
-Release:	11.%{snap}
+Release:	12.%{snap}
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
 Source0:	%{name}-%{snap}.tar.gz
@@ -111,8 +111,6 @@ ln -sf "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}-%{version}
 # simulate jade
 ln -sf openjade $RPM_BUILD_ROOT%{_bindir}/jade
 
-gzip -9nf COPYING README
-
 %find_lang OpenJade
 
 %clean
@@ -127,14 +125,16 @@ rm -rf $RPM_BUILD_ROOT
 
 %postun
 /sbin/ldconfig
-/usr/bin/install-catalog --remove /etc/sgml/dsssl-%{version}.cat \
-	%{_datadir}/sgml/%{name}-%{version}/catalog
-/usr/bin/install-catalog --remove /etc/sgml/jade-unicode-%{version}-%{release}.cat \
-	%{_datadir}/sgml/unicode/catalog
+if [ "$1" = "0" ]; the
+	/usr/bin/install-catalog --remove /etc/sgml/dsssl-%{version}.cat \
+		%{_datadir}/sgml/%{name}-%{version}/catalog
+	/usr/bin/install-catalog --remove /etc/sgml/jade-unicode-%{version}-%{release}.cat \
+		%{_datadir}/sgml/unicode/catalog
+fi
 
 %files -f OpenJade.lang
 %defattr(644,root,root,755)
-%doc jadedoc/ dsssl/ README.gz COPYING.gz
+%doc jadedoc/ dsssl/ README COPYING
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_libdir}/lib*.so.*.*
 %{_datadir}/sgml/*
