@@ -1,85 +1,110 @@
-Summary:	OpenJade -- SGML and DSSSL parser
+Summary:	OpenJade -- DSSSL parser
 Name: 		openjade
-Version: 	1.3
+##Epoch:		1 #prepared for 1.3.1
+Version: 	20000320
 Release: 	1
-Summary(pl):	OpenJade  -- parser SGML i DSSSL
+Summary(pl):	OpenJade -- parser DSSSL
 Provides:	dssslparser
-Provides:	sgmlparser
-Prereq:		/usr/sbin/install-catalog
+Prereq:		%{_sbindir}/fix-sgml-catalog
 Requires: 	sgml-common
-Conflicts:	sp
-Vendor: 	James Clark
-URL: 		http://jade-cvs.avionitek.com/
-Source:		ftp://peano.mathematik.uni-freiburg.de/pub/jade/%{name}-%{version}.tar.gz
-Source1: 	openjade.cat
+Requires:	sgmlparser
+Requires: 	opensp >= 1.4-1
+URL:            http://openjade.sourceforge.net/
+#Source:         http://download.sourceforge.net/openjade/%{name}-%{version}.tar.gz
+Source:         %{name}-%{version}.tar.gz
+Source1: 	%{name}.cat
+Patch:		%{name}-DESTDIR.patch
 #Patch:		jade-debian.patch
 #Patch1:	jade-jumbo.patch
-Copyright:	(C) 1998 James Clark (free) 
+Copyright:      Copyright (c) 1999 The OpenJade group (free)
 BuildRoot: 	/tmp/%{name}-%{version}-root
+BuildRequires:	opensp-devel >= 1.4-1
+BuildRequires:	perl
 Group:  	Applications/Publishing/SGML
 Group(pl):      Aplikacje/Publikowanie/SGML
 
 
 %description
 Jade (James' DSSSL Engine) is an implementation of the DSSSL style language. 
-Also contain SGML parser called sp (replacement of sgmls).
 
 %description -l pl
 Jade (James' DSSSL Engine) jest implementacj± parsera DSSSL.
-zawiera tak¿e parser  SGML  (bêd±cy nastêpc± pisanego w C sgmls) oraz narzêdzia
-do ,,normalizacji'' SGMLa (sgmlnorm),  konwersji  tego¿  do  XMLa
-(sgml2xml).
 
+%package devel
+Summary:	%{name} header files.
+Summary(pl):	Pliki nag³ówkowe %{name}
+Requires:	%{name} = %{version}
+Group:		Development/Libraries
+Group(pl):	Programowanie/Biblioteki
+
+%description devel
+
+%description -l pl devel
 
 %prep
-
 %setup -q  
-#%patch -p1
+%patch -p1
 #%patch1 -p1
 
 %build
 
-./configure					\
-	--prefix=%{_prefix}			\
-	--sharedstatedir=/usr/share/sgml 	\
+#missing files required by Makefile.am
+>ChangeLog
+>INSTALL
+autoheader
+automake --add-missing
+aclocal
+autoconf
+LDFLAGS="-s"; export LDFLAGS
+%configure \
 	--enable-default-catalog=/usr/share/sgml/CATALOG:/usr/local/share/sgml/CATALOG:/etc/sgml.catalog			  			\
 	--enable-default-search-path=/usr/share/sgml:/usr/local/share/sgml 
 
+
+#	--prefix=%{_prefix}			\
+#	--sharedstatedir=/usr/share/sgml 	\
 #	--enable-http 				\
 #	--enable-shared 			\
 #	--disable-mif				\
 #	--enable-html 				\
 
 #	--with-gnu-ld --prefix=/usr 		\
+
 make  
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT/usr/share/sgml/{catalogs,openjade,html}
-install -d $RPM_BUILD_ROOT/usr/lib
+install -d $RPM_BUILD_ROOT%{_datadir}/sgml/catalogs
+install -d $RPM_BUILD_ROOT%{_libdir}
 
-make -f Makefile install prefix="$RPM_BUILD_ROOT/usr"
+make install DESTDIR=$RPM_BUILD_ROOT
 
-cp -ar pubtext/* $RPM_BUILD_ROOT/usr/share/sgml/html
-cp -ar unicode $RPM_BUILD_ROOT/usr/share/sgml
+#cp -ar pubtext/* $RPM_BUILD_ROOT%{_datadir}/sgml/html
+cp -a unicode $RPM_BUILD_ROOT%{_datadir}/sgml
 
 #mv $RPM_BUILD_ROOT/usr/bin/sx $RPM_BUILD_ROOT/usr/bin/sgml2xml
 #perl -pi -e 's/sx/sgml2xml/g; s/SX/SGML2XML/g;'   doc/*.htm 
 
-install %{SOURCE1} $RPM_BUILD_ROOT/usr/share/sgml/catalogs
+install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/sgml/catalogs
 
-install dsssl/catalog $RPM_BUILD_ROOT/usr/share/sgml/openjade
-install dsssl/*.dtd   $RPM_BUILD_ROOT/usr/share/sgml/openjade
-install dsssl/*.dsl   $RPM_BUILD_ROOT/usr/share/sgml/openjade
+#install dsssl/catalog $RPM_BUILD_ROOT%{_datadir}/sgml/openjade
+#install dsssl/*.dtd   $RPM_BUILD_ROOT%{_datadir}/sgml/openjade
+#install dsssl/*.dsl   $RPM_BUILD_ROOT%{_datadir}/sgml/openjade
 
-strip $RPM_BUILD_ROOT/usr/bin/*
-strip $RPM_BUILD_ROOT/usr/lib/*.so.*
+ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/openjade
+
+gzip -9nf COPYING README
+
 
 %post
-install-catalog --install catalogs/openjade	--version %{version}-%{release}
+/sbin/ldconfig
+%{_sbindir}/fix-sgml-catalog
+#install-catalog --install catalogs/openjade	--version %{version}-%{release}
 
 %preun
-install-catalog --remove  catalogs/openjade	--version %{version}-%{release}
+/sbin/ldconfig
+%{_sbindir}/fix-sgml-catalog
+#install-catalog --remove  catalogs/openjade	--version %{version}-%{release}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -87,18 +112,17 @@ rm -rf $RPM_BUILD_ROOT
 
 %files
 %defattr(644,root,root,755)
-%doc jadedoc/ dsssl/ README COPYING VERSION
-%attr(755,root,root) /usr/bin/openjade
-%attr(755,root,root) /usr/lib/libostyle.so*
-%attr(755,root,root) /usr/lib/libogrove.so*
-%attr(755,root,root) /usr/lib/libospgrove.so*
-%config /usr/share/sgml/catalogs/openjade.cat
-/usr/share/sgml/openjade
-%defattr(644, root, root, 755)
-%attr(755,root,root) /usr/bin/os*
-%attr(755,root,root) /usr/bin/onsgmls
-%attr(755,root,root) /usr/lib/libosp.so*
-%doc doc/*
-/usr/share/*.dsl
-/usr/share/sgml/html
-/usr/share/sgml/unicode
+%doc jadedoc/ dsssl/ README.gz COPYING.gz
+%attr(755,root,root) %{_bindir}/*
+%attr(755,root,root) %{_libdir}/*.so.*
+%{_datadir}/sgml/catalogs/*
+%{_datadir}/sgml/openjade
+%{_datadir}/sgml/unicode
+%{_datadir}/OpenJade
+%lang(de) %{_datadir}/locale/de/LC_MESSAGES/*
+%lang(sv) %{_datadir}/locale/sv/LC_MESSAGES/*
+
+%files devel
+%defattr(644,root,root,755)
+%{_includedir}/OpenJade
+%{_libdir}/*.so
