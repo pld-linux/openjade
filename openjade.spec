@@ -71,9 +71,9 @@ libtoolize --copy --force
 aclocal
 echo "#undef SIZEOF_WCHAR_T" >> acconfig.h
 autoheader
-automake -a -c -f --foreign
+%{__automake}
 #aclocal
-autoconf
+%{__autoconf}
 %ifarch alpha
 CXXFLAGS="-O0 %{?debug:-g}"
 %endif
