@@ -7,19 +7,17 @@ Release:	10.%{snap}
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
 Source0:	OpenJade-%{version}devel.%{snap}.tar.gz
-Patch0:		%{name}-table.patch
-Patch1:		%{name}-ac25x.patch
 URL:		http://openjade.sourceforge.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libtool
 BuildRequires:	gettext-devel
-BuildRequires:	opensp-devel >= 1.5pre5
+BuildRequires:	opensp-devel >= 1.6
 BuildRequires:	perl
 Provides:	jade
 Provides:	dssslparser
 Requires:	sgmlparser
-Requires:	opensp >= 1.5pre5
+Requires:	opensp >= 1.6
 Prereq:		sgml-common
 Prereq:		/sbin/ldconfig
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
@@ -60,8 +58,6 @@ Biblioteki statyczne OpenJade.
 
 %prep
 %setup -q -n OpenJade-%{version}devel
-#%patch0 -p0
-#%patch1 -p1
 
 %build
 #remove CVS dirs
