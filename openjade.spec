@@ -2,11 +2,12 @@ Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name:		openjade
 Version:	1.4
-Release:	8.20000320
+Release:	8.20020409
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
-Source0:	%{name}-20000320.tar.gz
-Patch0:		%{name}-DESTDIR.patch
+Source0:	%{name}-20020409.tar.gz
+#Patch0:		%{name}-DESTDIR.patch
+Patch1:		%{name}-table.patch
 URL:		http://openjade.sourceforge.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -57,8 +58,8 @@ OpenJade static libraries.
 Biblioteki statyczne OpenJade.
 
 %prep
-%setup -q -n %{name}-20000320
-%patch -p1
+%setup -q -n %{name}-20020409
+%patch1 -p0
 
 %build
 #missing files required by Makefile.am
