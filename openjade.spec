@@ -1,11 +1,12 @@
+%define		snap	20020409
 Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name:		openjade
 Version:	1.4
-Release:	9.20020409
+Release:	9.%{snap}
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
-Source0:	%{name}-20020409.tar.gz
+Source0:	%{name}-%{snap}.tar.gz
 Patch0:		%{name}-table.patch
 Patch1:		%{name}-ac25x.patch
 URL:		http://openjade.sourceforge.net/
@@ -58,11 +59,13 @@ OpenJade static libraries.
 Biblioteki statyczne OpenJade.
 
 %prep
-%setup -q -n %{name}-20020409
+%setup -q -n %{name}-%{snap}
 %patch0 -p0
 %patch1 -p1
 
 %build
+#remove CVS dirs
+find . -type d -name CVS -exec rm -rf {} \;
 #missing files required by Makefile.am
 >ChangeLog
 >INSTALL
@@ -116,16 +119,17 @@ rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/ldconfig
-/usr/bin/install-catalog --add /etc/sgml/dsssl-%{version}.cat \
+/usr/bin/install-catalog --add /etc/sgml/dsssl-%{version}-%{release}.cat \
 	%{_datadir}/sgml/%{name}-%{version}/catalog
+/usr/bin/install-catalog --add /etc/sgml/jade-unicode-%{version}-%{release}.cat \
+	%{_datadir}/sgml/unicode/catalog
 
 %postun
 /sbin/ldconfig
-# Do not remove if upgrade
-if [ "$1" = "0" ]; then
-	/usr/bin/install-catalog --remove /etc/sgml/dsssl-%{version}.cat \
-		%{_datadir}/sgml/%{name}-%{version}/catalog
-fi
+/usr/bin/install-catalog --remove /etc/sgml/dsssl-%{version}.cat \
+	%{_datadir}/sgml/%{name}-%{version}/catalog
+/usr/bin/install-catalog --remove /etc/sgml/jade-unicode-%{version}-%{release}.cat \
+	%{_datadir}/sgml/unicode/catalog
 
 %files -f OpenJade.lang
 %defattr(644,root,root,755)
