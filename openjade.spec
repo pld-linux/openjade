@@ -70,10 +70,12 @@ autoheader
 automake --add-missing
 aclocal
 autoconf
-##CXXFLAGS="$RPM_OPT_FLAGS -fno-exceptions"
+%ifarch alpha
+CXXFLAGS="-O0"
+export CXXFLAGS
+%endif
 LDFLAGS="-s"
 export LDFLAGS 
-##export CXXFLAGS
 %configure \
 	--enable-default-catalog=/usr/share/sgml/CATALOG:/usr/local/share/sgml/CATALOG:/etc/sgml.catalog			  			\
 	--enable-default-search-path=/usr/share/sgml:/usr/local/share/sgml
