@@ -14,6 +14,7 @@ Group(pl):	Aplikacje/Publikowanie/SGML
 Source0:	%{name}-20000320.tar.gz
 Patch0:		%{name}-DESTDIR.patch
 URL:		http://openjade.sourceforge.net/
+BuildRequires:	libtool
 BuildRequires:	opensp-devel
 BuildRequires:	perl
 BuildRequires:	gettext-devel
@@ -70,8 +71,9 @@ Biblioteki statyczne OpenJade.
 >ChangeLog
 >INSTALL
 gettextize --copy --force
+libtoolize --copy --force
 autoheader
-automake --add-missing
+automake -a -c
 aclocal
 autoconf
 %ifarch alpha
