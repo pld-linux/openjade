@@ -36,6 +36,7 @@ Group:		Development/Libraries
 Group(de):	Entwicklung/Libraries
 Group(fr):	Development/Librairies
 Group(pl):	Programowanie/Biblioteki
+Prereq:		/sbin/ldconfig
 Requires:	%{name} = %{version}
 
 %description devel
@@ -114,13 +115,15 @@ gzip -9nf COPYING README
 
 %post
 /sbin/ldconfig
-/usr/bin/install-catalog --add /etc/sgml/dsssl-%{version}.cat %{_datadir}/sgml/%{name}-%{version}/catalog
+/usr/bin/install-catalog --add /etc/sgml/dsssl-%{version}.cat \
+	%{_datadir}/sgml/%{name}-%{version}/catalog
 
 %postun
 /sbin/ldconfig
 # Do not remove if upgrade
 if [ "$1" = "0" ]; then
-/usr/bin/install-catalog --remove /etc/sgml/dsssl-%{version}.cat %{_datadir}/sgml/%{name}-%{version}/catalog
+	/usr/bin/install-catalog --remove /etc/sgml/dsssl-%{version}.cat \
+		%{_datadir}/sgml/%{name}-%{version}/catalog
 fi
 
 
