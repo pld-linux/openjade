@@ -84,7 +84,7 @@ export CXXFLAGS
 # it has /usr/share/Openjade hardcoded somewhere so it des not work
 	# --datadir=%{_datadir}/sgml
 
-%{__make}  
+%{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
