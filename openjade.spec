@@ -72,7 +72,8 @@ LDFLAGS=""; export LDFLAGS
 	--enable-default-search-path=/usr/share/sgml \
 	--enable-mif \
 	--enable-html \
-	--enable-threads
+	--enable-threads \
+	--enable-splibdir=%{_libdir}
 
 # it has /usr/share/Openjade hardcoded somewhere so it does not work
 	# --datadir=%{_datadir}/sgml
