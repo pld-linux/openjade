@@ -15,7 +15,7 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libtool
 BuildRequires:	gettext-devel
-BuildRequires:	opensp-devel >= 1:1.5-3
+BuildRequires:	opensp-devel >= 1:1.5.1
 BuildRequires:	perl
 Requires(post,postun):	/sbin/ldconfig
 Requires(post,postun):	sgml-common
