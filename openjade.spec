@@ -1,20 +1,20 @@
 Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
-Name: 		openjade
-Version: 	1.4
-Release: 	3.20000320
+Name:		openjade
+Version:	1.4
+Release:	4.20000320
 Provides:	dssslparser
 Prereq:		%{_sbindir}/fix-sgml-catalog
-Requires: 	sgml-common
+Requires:	sgml-common
 Requires:	sgmlparser
-Requires: 	opensp >= 1.4-2
-Copyright:      Copyright (c) 1999 The OpenJade group (free)
-Group:  	Applications/Publishing/SGML
-Group(pl):      Aplikacje/Publikowanie/SGML
-#Source:         http://download.sourceforge.net/openjade/%{name}-%{version}.tar.gz
-Source:         %{name}-20000320.tar.gz
+Requires:	opensp >= 1.4-2
+Copyright:	Copyright (c) 1999 The OpenJade group (free)
+Group:		Applications/Publishing/SGML
+Group(de):	Applikationen/Publizieren/SGML
+Group(pl):	Aplikacje/Publikowanie/SGML
+Source0:	%{name}-20000320.tar.gz
 Patch0:		%{name}-DESTDIR.patch
-URL:            http://openjade.sourceforge.net/
+URL:		http://openjade.sourceforge.net/
 BuildRequires:	opensp-devel >= 1.4-2
 BuildRequires:	perl
 BuildRequires:	gettext-devel
@@ -23,17 +23,19 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	jade
 
 %description
-Jade (James' DSSSL Engine) is an implementation of the DSSSL style language.
-OpenJade is successor of Jade.
+Jade (James' DSSSL Engine) is an implementation of the DSSSL style
+language. OpenJade is successor of Jade.
 
 %description -l pl
-Jade (James' DSSSL Engine) jest implementacj± parsera DSSSL.
-OpenJade jest nastêpc± Jade
+Jade (James' DSSSL Engine) jest implementacj± parsera DSSSL. OpenJade
+jest nastêpc± Jade
 
 %package devel
 Summary:	OpenJade header files
 Summary(pl):	Pliki nag³ówkowe do bibliotek OpenJade
 Group:		Development/Libraries
+Group(de):	Entwicklung/Libraries
+Group(fr):	Development/Librairies
 Group(pl):	Programowanie/Biblioteki
 Requires:	%{name} = %{version}
 
@@ -47,6 +49,8 @@ Pliki nag³ówkowe do bibliotek OpenJade.
 Summary:	OpenJade static libraries
 Summary(pl):	Biblioteki statyczne OpenJade
 Group:		Development/Libraries
+Group(de):	Entwicklung/Libraries
+Group(fr):	Development/Librairies
 Group(pl):	Programowanie/Biblioteki
 Requires:	%{name}-devel = %{version}
 
@@ -74,8 +78,6 @@ autoconf
 CXXFLAGS="-O0"
 export CXXFLAGS
 %endif
-LDFLAGS="-s"
-export LDFLAGS 
 %configure \
 	--enable-default-catalog=/usr/share/sgml/CATALOG:/usr/local/share/sgml/CATALOG:/etc/sgml.catalog			  			\
 	--enable-default-search-path=/usr/share/sgml:/usr/local/share/sgml
@@ -90,14 +92,13 @@ install -d $RPM_BUILD_ROOT{%{_datadir}/sgml/catalogs,%{_libdir}}
 cp -a unicode $RPM_BUILD_ROOT%{_datadir}/sgml
 ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}
 
-grep -v SYSTEM $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}/catalog \
-     > $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}/%{name}.cat
+grep -v SYSTEM $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}/catalog > \
+	$RPM_BUILD_ROOT%{_datadir}/sgml/%{name}/%{name}.cat
 ln -s ../%{name}/%{name}.cat $RPM_BUILD_ROOT%{_datadir}/sgml/catalogs/
 
 # simulate jade
 ln -s openjade $RPM_BUILD_ROOT%{_bindir}/jade
 
-strip --strip-unneeded $RPM_BUILD_ROOT%{_libdir}/lib*.so.*.*
 gzip -9nf COPYING README
 
 %find_lang OpenJade
@@ -130,4 +131,5 @@ rm -rf $RPM_BUILD_ROOT
 %attr(755,root,root) %{_libdir}/lib*.la
 
 %files static
+%defattr(644,root,root,755)
 %attr(644,root,root) %{_libdir}/lib*.a
