@@ -3,10 +3,6 @@ Summary(pl):	OpenJade -- parser DSSSL
 Name:		openjade
 Version:	1.4
 Release:	6.20000320
-Provides:	dssslparser
-Requires:	sgml-common
-Requires:	sgmlparser
-Requires:	opensp >= 1.4-9
 Copyright:	Copyright (c) 1999 The OpenJade group (free)
 Group:		Applications/Publishing/SGML
 Group(de):	Applikationen/Publizieren/SGML
@@ -14,11 +10,17 @@ Group(pl):	Aplikacje/Publikowanie/SGML
 Source0:	%{name}-20000320.tar.gz
 Patch0:		%{name}-DESTDIR.patch
 URL:		http://openjade.sourceforge.net/
+BuildRequires:	autoconf
+BuildRequires:	automake
 BuildRequires:	libtool
+BuildRequires:	gettext-devel
 BuildRequires:	opensp-devel
 BuildRequires:	perl
-BuildRequires:	gettext-devel
 Provides:	jade
+Provides:	dssslparser
+Requires:	sgml-common
+Requires:	sgmlparser
+Requires:	opensp >= 1.4-9
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	jade
 
@@ -28,15 +30,19 @@ language. OpenJade is successor of Jade.
 
 %description -l pl
 Jade (James' DSSSL Engine) jest implementacj╠ parsera DSSSL. OpenJade
-jest nastЙpc╠ Jade
+jest nastЙpc╠ Jade.
 
 %package devel
 Summary:	OpenJade header files
 Summary(pl):	Pliki nagЁСwkowe do bibliotek OpenJade
 Group:		Development/Libraries
 Group(de):	Entwicklung/Libraries
+Group(es):	Desarrollo/Bibliotecas
 Group(fr):	Development/Librairies
 Group(pl):	Programowanie/Biblioteki
+Group(pt_BR):	Desenvolvimento/Bibliotecas
+Group(ru):	Разработка/Библиотеки
+Group(uk):	Розробка/Б╕бл╕отеки
 Prereq:		/sbin/ldconfig
 Requires:	%{name} = %{version}
 
@@ -51,8 +57,12 @@ Summary:	OpenJade static libraries
 Summary(pl):	Biblioteki statyczne OpenJade
 Group:		Development/Libraries
 Group(de):	Entwicklung/Libraries
+Group(es):	Desarrollo/Bibliotecas
 Group(fr):	Development/Librairies
 Group(pl):	Programowanie/Biblioteki
+Group(pt_BR):	Desenvolvimento/Bibliotecas
+Group(ru):	Разработка/Библиотеки
+Group(uk):	Розробка/Б╕бл╕отеки
 Requires:	%{name}-devel = %{version}
 
 %description static
@@ -98,7 +108,7 @@ install -d $RPM_BUILD_ROOT%{_datadir}/sgml
 %{__make} install DESTDIR=$RPM_BUILD_ROOT
 
 cp -a unicode $RPM_BUILD_ROOT%{_datadir}/sgml
-ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}-%{version}
+ln -sf "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}-%{version}
 
 ##ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}
 #install dsssl/catalog \
@@ -110,11 +120,14 @@ ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}-%{version}
 
 
 # simulate jade
-ln -s openjade $RPM_BUILD_ROOT%{_bindir}/jade
+ln -sf openjade $RPM_BUILD_ROOT%{_bindir}/jade
 
 gzip -9nf COPYING README
 
 %find_lang OpenJade
+
+%clean
+rm -rf $RPM_BUILD_ROOT
 
 %post
 /sbin/ldconfig
@@ -128,10 +141,6 @@ if [ "$1" = "0" ]; then
 	/usr/bin/install-catalog --remove /etc/sgml/dsssl-%{version}.cat \
 		%{_datadir}/sgml/%{name}-%{version}/catalog
 fi
-
-
-%clean
-rm -rf $RPM_BUILD_ROOT
 
 %files -f OpenJade.lang
 %defattr(644,root,root,755)
