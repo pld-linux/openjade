@@ -2,7 +2,7 @@ Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name: 		openjade
 Version: 	1.4
-Release: 	1.20000320
+Release: 	2.20000320
 Provides:	dssslparser
 Prereq:		%{_sbindir}/fix-sgml-catalog
 Requires: 	sgml-common
@@ -15,14 +15,13 @@ Group(pl):      Aplikacje/Publikowanie/SGML
 Source:         %{name}-20000320.tar.gz
 Source1: 	%{name}.cat
 Patch0:		%{name}-DESTDIR.patch
-#Patch:		jade-debian.patch
-#Patch1:	jade-jumbo.patch
 URL:            http://openjade.sourceforge.net/
-Obsoletes:	jade
 BuildRequires:	opensp-devel >= 1.4-2
 BuildRequires:	perl
 BuildRequires:	gettext-devel
+Provides:	jade
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
+Obsoletes:	jade
 
 %description
 Jade (James' DSSSL Engine) is an implementation of the DSSSL style language.
@@ -101,6 +100,7 @@ install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/sgml/catalogs
 #install dsssl/*.dsl   $RPM_BUILD_ROOT%{_datadir}/sgml/openjade
 
 ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/openjade
+ln -s openjade $RPM_BUILD_ROOT%{_bindir}/jade
 
 strip --strip-unneeded $RPM_BUILD_ROOT%{_libdir}/lib*.so.*.*
 
