@@ -4,7 +4,6 @@ Name:		openjade
 Version:	1.4
 Release:	4.20000320
 Provides:	dssslparser
-Prereq:		%{_sbindir}/fix-sgml-catalog
 Requires:	sgml-common
 Requires:	sgmlparser
 Requires:	opensp >= 1.4-2
@@ -15,7 +14,7 @@ Group(pl):	Aplikacje/Publikowanie/SGML
 Source0:	%{name}-20000320.tar.gz
 Patch0:		%{name}-DESTDIR.patch
 URL:		http://openjade.sourceforge.net/
-BuildRequires:	opensp-devel >= 1.4-2
+BuildRequires:	opensp-devel >= 1.4
 BuildRequires:	perl
 BuildRequires:	gettext-devel
 Provides:	jade
@@ -79,22 +78,32 @@ CXXFLAGS="-O0"
 export CXXFLAGS
 %endif
 %configure \
-	--enable-default-catalog=/usr/share/sgml/CATALOG:/usr/local/share/sgml/CATALOG:/etc/sgml.catalog			  			\
-	--enable-default-search-path=/usr/share/sgml:/usr/local/share/sgml
+	--enable-default-catalog=/etc/sgml/catalog \
+	--enable-default-search-path=/usr/share/sgml \
+
+
+# it has /usr/share/Openjade hardcoded somewhere so it des not work
+	# --datadir=%{_datadir}/sgml
+
 %{__make}  
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT{%{_datadir}/sgml/catalogs,%{_libdir}}
+install -d $RPM_BUILD_ROOT%{_datadir}/sgml
 
 %{__make} install DESTDIR=$RPM_BUILD_ROOT
 
 cp -a unicode $RPM_BUILD_ROOT%{_datadir}/sgml
-ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}
+ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}-%{version}
 
-grep -v SYSTEM $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}/catalog > \
-	$RPM_BUILD_ROOT%{_datadir}/sgml/%{name}/%{name}.cat
-ln -s ../%{name}/%{name}.cat $RPM_BUILD_ROOT%{_datadir}/sgml/catalogs/
+##ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}
+#install dsssl/catalog \
+#	dsssl/builtins.dsl dsssl/extensions.dsl \
+#	dsssl/dsssl.dtd dsssl/fot.dtd dsssl/spec.dtd dsssl/style-sheet.dtd \
+#	$RPM_BUILD_ROOT%{_datadir}/sgml/%{name}-%{version}/
+#grep -v SYSTEM $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}/catalog > \
+#	$RPM_BUILD_ROOT%{_datadir}/sgml/%{name}/%{name}.cat
+
 
 # simulate jade
 ln -s openjade $RPM_BUILD_ROOT%{_bindir}/jade
@@ -105,11 +114,15 @@ gzip -9nf COPYING README
 
 %post
 /sbin/ldconfig
-%{_sbindir}/fix-sgml-catalog
+/usr/bin/install-catalog --add /etc/sgml/dsssl-%{version}.cat %{_datadir}/sgml/%{name}-%{version}/catalog
 
-%preun
+%postun
 /sbin/ldconfig
-%{_sbindir}/fix-sgml-catalog
+# Do not remove if upgrade
+if [ "$1" = "0" ]; then
+/usr/bin/install-catalog --remove /etc/sgml/dsssl-%{version}.cat %{_datadir}/sgml/%{name}-%{version}/catalog
+fi
+
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -119,9 +132,7 @@ rm -rf $RPM_BUILD_ROOT
 %doc jadedoc/ dsssl/ README.gz COPYING.gz
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_libdir}/lib*.so.*.*
-%{_datadir}/sgml/catalogs/*
-%{_datadir}/sgml/openjade
-%{_datadir}/sgml/unicode
+%{_datadir}/sgml/*
 %{_datadir}/OpenJade
 
 %files devel
