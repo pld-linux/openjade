@@ -2,7 +2,7 @@ Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name:		openjade
 Version:	1.4
-Release:	5.20000320
+Release:	6.20000320
 Provides:	dssslparser
 Requires:	sgml-common
 Requires:	sgmlparser
@@ -66,15 +66,16 @@ Biblioteki statyczne OpenJade.
 %patch -p1
 
 %build
-
 #missing files required by Makefile.am
 >ChangeLog
 >INSTALL
 gettextize --copy --force
 libtoolize --copy --force
+aclocal
+echo "#undef SIZEOF_WCHAR_T" >> acconfig.h
 autoheader
 automake -a -c
-aclocal
+#aclocal
 autoconf
 %ifarch alpha
 CXXFLAGS="-O0"
