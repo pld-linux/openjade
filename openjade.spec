@@ -65,12 +65,11 @@ Biblioteki statyczne OpenJade.
 
 %build
 #remove CVS dirs
-find . -type d -name CVS -exec rm -rf {} \;
+find . -type d -name CVS | xargs rm -rf
 #missing files required by Makefile.am
->ChangeLog
->INSTALL
-gettextize --copy --force
-libtoolize --copy --force
+touch ChangeLog
+%{__gettextize}
+%{__libtoolize}
 aclocal
 echo "#undef SIZEOF_WCHAR_T" >> acconfig.h
 autoheader
