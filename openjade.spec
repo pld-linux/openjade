@@ -2,7 +2,7 @@ Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name: 		openjade
 Version: 	1.4
-Release: 	0.20000320
+Release: 	1.20000320
 Provides:	dssslparser
 Prereq:		%{_sbindir}/fix-sgml-catalog
 Requires: 	sgml-common
@@ -18,6 +18,7 @@ Patch0:		%{name}-DESTDIR.patch
 #Patch:		jade-debian.patch
 #Patch1:	jade-jumbo.patch
 URL:            http://openjade.sourceforge.net/
+Obsoletes:	jade
 BuildRequires:	opensp-devel >= 1.4-2
 BuildRequires:	perl
 BuildRequires:	gettext-devel
@@ -72,9 +73,10 @@ autoheader
 automake --add-missing
 aclocal
 autoconf
-CXXFLAGS="$RPM_OPT_FLAGS -fno-exceptions"
+##CXXFLAGS="$RPM_OPT_FLAGS -fno-exceptions"
 LDFLAGS="-s"
-export LDFLAGS CXXFLAGS
+export LDFLAGS 
+##export CXXFLAGS
 %configure \
 	--enable-default-catalog=/usr/share/sgml/CATALOG:/usr/local/share/sgml/CATALOG:/etc/sgml.catalog			  			\
 	--enable-default-search-path=/usr/share/sgml:/usr/local/share/sgml
