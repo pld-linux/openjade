@@ -5,8 +5,6 @@ Version:	1.4
 Release:	8.20000320
 License:	free (Copyright (c) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
-Group(de):	Applikationen/Publizieren/SGML
-Group(pl):	Aplikacje/Publikowanie/SGML
 Source0:	%{name}-20000320.tar.gz
 Patch0:		%{name}-DESTDIR.patch
 URL:		http://openjade.sourceforge.net/
@@ -37,13 +35,6 @@ jest nastЙpc╠ Jade.
 Summary:	OpenJade header files
 Summary(pl):	Pliki nagЁСwkowe do bibliotek OpenJade
 Group:		Development/Libraries
-Group(de):	Entwicklung/Libraries
-Group(es):	Desarrollo/Bibliotecas
-Group(fr):	Development/Librairies
-Group(pl):	Programowanie/Biblioteki
-Group(pt_BR):	Desenvolvimento/Bibliotecas
-Group(ru):	Разработка/Библиотеки
-Group(uk):	Розробка/Б╕бл╕отеки
 Prereq:		/sbin/ldconfig
 Requires:	%{name} = %{version}
 
@@ -57,13 +48,6 @@ Pliki nagЁСwkowe do bibliotek OpenJade.
 Summary:	OpenJade static libraries
 Summary(pl):	Biblioteki statyczne OpenJade
 Group:		Development/Libraries
-Group(de):	Entwicklung/Libraries
-Group(es):	Desarrollo/Bibliotecas
-Group(fr):	Development/Librairies
-Group(pl):	Programowanie/Biblioteki
-Group(pt_BR):	Desenvolvimento/Bibliotecas
-Group(ru):	Разработка/Библиотеки
-Group(uk):	Розробка/Б╕бл╕отеки
 Requires:	%{name}-devel = %{version}
 
 %description static
