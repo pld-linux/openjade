@@ -1,27 +1,27 @@
 Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name: 		openjade
-##Epoch:		1 #prepared for 1.3.1
-Version: 	20000320
-Release: 	1
+Version: 	1.4
+Release: 	0.20000320
 Provides:	dssslparser
 Prereq:		%{_sbindir}/fix-sgml-catalog
 Requires: 	sgml-common
 Requires:	sgmlparser
 Requires: 	opensp >= 1.4-1
-URL:            http://openjade.sourceforge.net/
-#Source:         http://download.sourceforge.net/openjade/%{name}-%{version}.tar.gz
-Source:         %{name}-%{version}.tar.gz
-Source1: 	%{name}.cat
-Patch:		%{name}-DESTDIR.patch
-#Patch:		jade-debian.patch
-#Patch1:	jade-jumbo.patch
 Copyright:      Copyright (c) 1999 The OpenJade group (free)
-BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
-BuildRequires:	opensp-devel >= 1.4-1
-BuildRequires:	perl
 Group:  	Applications/Publishing/SGML
 Group(pl):      Aplikacje/Publikowanie/SGML
+#Source:         http://download.sourceforge.net/openjade/%{name}-%{version}.tar.gz
+Source:         %{name}-20000320.tar.gz
+Source1: 	%{name}.cat
+Patch0:		%{name}-DESTDIR.patch
+#Patch:		jade-debian.patch
+#Patch1:	jade-jumbo.patch
+URL:            http://openjade.sourceforge.net/
+BuildRequires:	opensp-devel >= 1.4-1
+BuildRequires:	perl
+BuildRequires:	gettext-devel
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 
 %description
 Jade (James' DSSSL Engine) is an implementation of the DSSSL style language.
@@ -32,18 +32,33 @@ Jade (James' DSSSL Engine) jest implementacj± parsera DSSSL.
 OpenJade jest nastêpc± Jade
 
 %package devel
-Summary:	%{name} header files.
-Summary(pl):	Pliki nag³ówkowe %{name}
-Requires:	%{name} = %{version}
+Summary:	OpenJade header files
+Summary(pl):	Pliki nag³ówkowe do bibliotek OpenJade
 Group:		Development/Libraries
 Group(pl):	Programowanie/Biblioteki
+Requires:	%{name} = %{version}
 
 %description devel
+Openjade header files.
 
 %description -l pl devel
+Pliki nag³ówkowe do bibliotek OpenJade.
+
+%package static
+Summary:	OpenJade static libraries
+Summary(pl):	Biblioteki statyczne OpenJade
+Group:		Development/Libraries
+Group(pl):	Programowanie/Biblioteki
+Requires:	%{name}-devel = %{version}
+
+%description static
+OpenJade static libraries.
+
+%description -l pl static
+Biblioteki statyczne OpenJade.
 
 %prep
-%setup -q  
+%setup -q -n openjade-20000320
 %patch -p1
 #%patch1 -p1
 
@@ -52,30 +67,22 @@ Group(pl):	Programowanie/Biblioteki
 #missing files required by Makefile.am
 >ChangeLog
 >INSTALL
+gettextize --copy --force
 autoheader
 automake --add-missing
 aclocal
 autoconf
-LDFLAGS="-s"; export LDFLAGS
+CXXFLAGS="$RPM_OPT_FLAGS -fno-exceptions"
+LDFLAGS="-s"
+export LDFLAGS CXXFLAGS
 %configure \
 	--enable-default-catalog=/usr/share/sgml/CATALOG:/usr/local/share/sgml/CATALOG:/etc/sgml.catalog			  			\
-	--enable-default-search-path=/usr/share/sgml:/usr/local/share/sgml 
-
-#	--prefix=%{_prefix}			\
-#	--sharedstatedir=/usr/share/sgml 	\
-#	--enable-http 				\
-#	--enable-shared 			\
-#	--disable-mif				\
-#	--enable-html 				\
-
-#	--with-gnu-ld --prefix=/usr 		\
-
+	--enable-default-search-path=/usr/share/sgml:/usr/local/share/sgml
 make  
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_datadir}/sgml/catalogs
-install -d $RPM_BUILD_ROOT%{_libdir}
+install -d $RPM_BUILD_ROOT{%{_datadir}/sgml/catalogs,%{_libdir}}
 
 make install DESTDIR=$RPM_BUILD_ROOT
 
@@ -93,34 +100,38 @@ install %{SOURCE1} $RPM_BUILD_ROOT%{_datadir}/sgml/catalogs
 
 ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/openjade
 
+strip --strip-unneeded $RPM_BUILD_ROOT%{_libdir}/lib*.so.*.*
+
 gzip -9nf COPYING README
+
+%find_lang OpenJade
 
 %post
 /sbin/ldconfig
 %{_sbindir}/fix-sgml-catalog
-#install-catalog --install catalogs/openjade	--version %{version}-%{release}
 
 %preun
 /sbin/ldconfig
 %{_sbindir}/fix-sgml-catalog
-#install-catalog --remove  catalogs/openjade	--version %{version}-%{release}
 
 %clean
 rm -rf $RPM_BUILD_ROOT
 
-%files
+%files -f OpenJade.lang
 %defattr(644,root,root,755)
 %doc jadedoc/ dsssl/ README.gz COPYING.gz
 %attr(755,root,root) %{_bindir}/*
-%attr(755,root,root) %{_libdir}/*.so.*
+%attr(755,root,root) %{_libdir}/lib*.so.*.*
 %{_datadir}/sgml/catalogs/*
 %{_datadir}/sgml/openjade
 %{_datadir}/sgml/unicode
 %{_datadir}/OpenJade
-%lang(de) %{_datadir}/locale/de/LC_MESSAGES/*
-%lang(sv) %{_datadir}/locale/sv/LC_MESSAGES/*
 
 %files devel
 %defattr(644,root,root,755)
 %{_includedir}/OpenJade
-%{_libdir}/*.so
+%attr(755,root,root) %{_libdir}/lib*.so
+%attr(755,root,root) %{_libdir}/lib*.la
+
+%files static
+%attr(644,root,root) %{_libdir}/lib*.a
