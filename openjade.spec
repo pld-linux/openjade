@@ -88,7 +88,7 @@ tail +3349 config/aclocal.m4 | head -64 > acinclude.m4
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{sgmldir}/%{name}-%{version}
+install -d $RPM_BUILD_ROOT{%{sgmldir}/%{name}-%{version},%{_includedir}/OpenJade}
 
 %{__make} install \
 	DESTDIR=$RPM_BUILD_ROOT \
@@ -100,7 +100,6 @@ ln -sf openjade $RPM_BUILD_ROOT%{_bindir}/jade
 # files present in openjade 1.4
 install dsssl/{catalog,dsssl.dtd,extensions.dsl,fot.dtd,style-sheet.dtd} \
 	$RPM_BUILD_ROOT%{sgmldir}/%{name}-%{version}
-install -d $RPM_BUILD_ROOT%{_includedir}/OpenJade
 install include/*.h grove/Node.h spgrove/{GroveApp,GroveBuilder}.h \
 	style/{DssslApp,FOTBuilder}.h $RPM_BUILD_ROOT%{_includedir}/OpenJade
 
@@ -108,6 +107,20 @@ install include/*.h grove/Node.h spgrove/{GroveApp,GroveBuilder}.h \
 
 %clean
 rm -rf $RPM_BUILD_ROOT
+
+%triggerpostun -- %{name} = 1.4
+if grep -sq /usr/share/sgml/unicode/catalog /etc/sgml/jade-unicode-1.4* ; then
+	for i in /etc/sgml/jade-unicode-1.4* ; do
+		/usr/bin/install-catalog --remove $i \
+			/usr/share/sgml/unicode/catalog
+	done
+fi
+if grep -sq /usr/share/sgml /etc/sgml/dsssl-1.4* ; then
+	for i in /etc/sgml/dsssl-1.4* ; do
+		/usr/bin/install-catalog --remove $i \
+			/usr/share/sgml/openjade-1.4/catalog
+	done
+fi
 
 %post
 /sbin/ldconfig
