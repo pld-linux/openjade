@@ -9,6 +9,7 @@ License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
 # Source0-md5:	cbf3d8be3e3516dcb12b751de822b48c
 Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}-pre%{pre}.tar.gz
+Patch0:		%{name}-nls-from-1.4.patch
 URL:		http://openjade.sourceforge.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -25,6 +26,9 @@ Provides:	jade
 Provides:	dssslparser
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Obsoletes:	jade
+
+%define		sgmldir		/usr/share/sgml
+%define		_datadir	%{sgmldir}/%{name}-%{version}
 
 %description
 Jade (James' DSSSL Engine) is an implementation of the DSSSL style
@@ -61,12 +65,17 @@ Biblioteki statyczne OpenJade.
 
 %prep
 %setup -q -n openjade-%{version}-pre%{pre}
+%patch -p1
 
 %build
-#remove CVS dirs
-find . -type d -name CVS -exec rm -rf {} \;
-#missing files required by Makefile.am
 LDFLAGS=""; export LDFLAGS
+ln -sf config/configure.in .
+# smr_SWITCH and OJ_SIZE_T_IS_UINT
+tail +3349 config/aclocal.m4 | head -64 > acinclude.m4
+%{__gettextize}
+%{__libtoolize}
+%{__aclocal}
+%{__autoconf}
 %configure \
 	--enable-default-catalog=/etc/sgml/catalog \
 	--enable-default-search-path=/usr/share/sgml \
@@ -75,22 +84,25 @@ LDFLAGS=""; export LDFLAGS
 	--enable-threads \
 	--enable-splibdir=%{_libdir}
 
-# it has /usr/share/Openjade hardcoded somewhere so it does not work
-	# --datadir=%{_datadir}/sgml
-
 %{__make}
 
 %install
 rm -rf $RPM_BUILD_ROOT
-install -d $RPM_BUILD_ROOT%{_datadir}/sgml
+install -d $RPM_BUILD_ROOT%{sgmldir}/%{name}-%{version}
 
-%{__make} install DESTDIR=$RPM_BUILD_ROOT \
-	pkgdocdir=%{_defaultdocdir}/%{name}-%{version} 
-
-ln -sf "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}-%{version}
+%{__make} install \
+	DESTDIR=$RPM_BUILD_ROOT \
+	localedir=%{_prefix}/share/locale
 
 # simulate jade
 ln -sf openjade $RPM_BUILD_ROOT%{_bindir}/jade
+
+# files present in openjade 1.4
+install dsssl/{catalog,dsssl.dtd,extensions.dsl,fot.dtd,style-sheet.dtd} \
+	$RPM_BUILD_ROOT%{sgmldir}/%{name}-%{version}
+install -d $RPM_BUILD_ROOT%{_includedir}/OpenJade
+install include/*.h grove/Node.h spgrove/{GroveApp,GroveBuilder}.h \
+	style/{DssslApp,FOTBuilder}.h $RPM_BUILD_ROOT%{_includedir}/OpenJade
 
 %find_lang jade
 
@@ -101,29 +113,28 @@ rm -rf $RPM_BUILD_ROOT
 /sbin/ldconfig
 if ! grep -q /etc/sgml/openjade.cat /etc/sgml/catalog ; then
 	/usr/bin/install-catalog --add /etc/sgml/openjade.cat \
-		%{_datadir}/OpenJade/catalog
+		%{sgmldir}/%{name}-%{version}/catalog
 fi
 
 %postun
 /sbin/ldconfig
 if [ "$1" = "0" ] ; then
 	/usr/bin/install-catalog --remove /etc/sgml/openjade.cat \
-		%{_datadir}/OpenJade/catalog
+		%{sgmldir}/%{name}-%{version}/catalog
 fi
 
 %files -f jade.lang
 %defattr(644,root,root,755)
-%doc %{_defaultdocdir}/%{name}-%{version}
+%doc COPYING ChangeLog NEWS README doc/*.htm jadedoc
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_libdir}/lib*.so.*.*
-%{_datadir}/sgml/*
-%{_datadir}/OpenJade
+%{sgmldir}/%{name}-%{version}
 
 %files devel
 %defattr(644,root,root,755)
-%{_includedir}/OpenJade
 %attr(755,root,root) %{_libdir}/lib*.so
 %{_libdir}/lib*.la
+%{_includedir}/OpenJade
 
 %files static
 %defattr(644,root,root,755)
