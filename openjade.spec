@@ -3,7 +3,7 @@ Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name:		openjade
 Version:	1.3.3
-Release:	0.pre%{pre}.1
+Release:	0.pre%{pre}.2
 Epoch:		1
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
@@ -112,6 +112,12 @@ rm -rf $RPM_BUILD_ROOT
 %post
 /sbin/ldconfig
 if ! grep -q /etc/sgml/openjade.cat /etc/sgml/catalog ; then
+	/usr/bin/install-catalog --add /etc/sgml/openjade.cat \
+		%{sgmldir}/%{name}-%{version}/catalog
+elif grep -sq /usr/share/OpenJade/catalog /etc/sgml/openjade.cat ; then
+	# upgrade
+	/usr/bin/install-catalog --remove /etc/sgml/openjade.cat \
+		/usr/share/OpenJade/catalog
 	/usr/bin/install-catalog --add /etc/sgml/openjade.cat \
 		%{sgmldir}/%{name}-%{version}/catalog
 fi
