@@ -13,12 +13,12 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libtool
 BuildRequires:	gettext-devel
-BuildRequires:	opensp-devel
+BuildRequires:	opensp-devel >= 1.5pre5
 BuildRequires:	perl
 Provides:	jade
 Provides:	dssslparser
 Requires:	sgmlparser
-Requires:	opensp >= 1.4-9
+Requires:	opensp >= 1.5pre5
 Prereq:		sgml-common
 Prereq:		/sbin/ldconfig
 BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
