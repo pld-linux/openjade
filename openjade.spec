@@ -39,7 +39,7 @@ Summary:	OpenJade header files
 Summary(pl):	Pliki nag³ówkowe do bibliotek OpenJade
 Group:		Development/Libraries
 Prereq:		/sbin/ldconfig
-Requires:	%{name} = %{version}
+Requires:	%{name} = %{epoch}:%{version}
 
 %description devel
 Openjade header files.
@@ -51,7 +51,7 @@ Pliki nag³ówkowe do bibliotek OpenJade.
 Summary:	OpenJade static libraries
 Summary(pl):	Biblioteki statyczne OpenJade
 Group:		Development/Libraries
-Requires:	%{name}-devel = %{version}
+Requires:	%{name}-devel = %{epoch}:%{version}
 
 %description static
 OpenJade static libraries.
