@@ -7,6 +7,7 @@ Release:	14.%{snap}
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
 Source0:	%{name}-%{snap}.tar.gz
+# Source0-md5:	47311fffd2a3205f6f0f4f6327bb2d0e
 Patch0:		%{name}-table.patch
 Patch1:		%{name}-ac25x.patch
 Patch2:		%{name}-types.patch
