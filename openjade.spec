@@ -17,12 +17,11 @@ Patch:		%{name}-DESTDIR.patch
 #Patch:		jade-debian.patch
 #Patch1:	jade-jumbo.patch
 Copyright:      Copyright (c) 1999 The OpenJade group (free)
-BuildRoot: 	/tmp/%{name}-%{version}-root
+BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 BuildRequires:	opensp-devel >= 1.4-1
 BuildRequires:	perl
 Group:  	Applications/Publishing/SGML
 Group(pl):      Aplikacje/Publikowanie/SGML
-
 
 %description
 Jade (James' DSSSL Engine) is an implementation of the DSSSL style language. 
@@ -60,7 +59,6 @@ LDFLAGS="-s"; export LDFLAGS
 	--enable-default-catalog=/usr/share/sgml/CATALOG:/usr/local/share/sgml/CATALOG:/etc/sgml.catalog			  			\
 	--enable-default-search-path=/usr/share/sgml:/usr/local/share/sgml 
 
-
 #	--prefix=%{_prefix}			\
 #	--sharedstatedir=/usr/share/sgml 	\
 #	--enable-http 				\
@@ -95,7 +93,6 @@ ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/openjade
 
 gzip -9nf COPYING README
 
-
 %post
 /sbin/ldconfig
 %{_sbindir}/fix-sgml-catalog
@@ -108,7 +105,6 @@ gzip -9nf COPYING README
 
 %clean
 rm -rf $RPM_BUILD_ROOT
-
 
 %files
 %defattr(644,root,root,755)
