@@ -3,7 +3,7 @@ Summary(pl):	OpenJade -- parser DSSSL
 Name:		openjade
 Version:	1.4
 Release:	6.20000320
-Copyright:	Copyright (c) 1999 The OpenJade group (free)
+License:	free (Copyright (c) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
 Group(de):	Applikationen/Publizieren/SGML
 Group(pl):	Aplikacje/Publikowanie/SGML
