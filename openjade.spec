@@ -7,6 +7,7 @@ Release:	12.%{snap}.1
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
 Source0:	OpenJade-%{version}devel.%{snap}.tar.gz
+# Source0-md5: 3fa38e706113c68c2137d13814c4292b
 URL:		http://openjade.sourceforge.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
