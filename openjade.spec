@@ -10,7 +10,7 @@ Requires: 	sgml-common
 Conflicts:	sp
 Vendor: 	James Clark
 URL: 		http://jade-cvs.avionitek.com/
-Source:		peano.mathematik.uni-freiburg.de/pub/jade/%{name}-%{version}.tar.gz
+Source:		ftp://peano.mathematik.uni-freiburg.de/pub/jade/%{name}-%{version}.tar.gz
 Source1: 	openjade.cat
 #Patch:		jade-debian.patch
 #Patch1:	jade-jumbo.patch
