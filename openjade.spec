@@ -71,7 +71,7 @@ Biblioteki statyczne OpenJade.
 LDFLAGS=""; export LDFLAGS
 ln -sf config/configure.in .
 # smr_SWITCH and OJ_SIZE_T_IS_UINT
-tail +3349 config/aclocal.m4 | head -64 > acinclude.m4
+tail -n +3349 config/aclocal.m4 | head -n 64 > acinclude.m4
 %{__gettextize}
 %{__libtoolize}
 %{__aclocal}
