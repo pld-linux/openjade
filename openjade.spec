@@ -70,11 +70,12 @@ Biblioteki statyczne OpenJade.
 find . -type d -name CVS | xargs rm -rf
 #missing files required by Makefile.am
 touch ChangeLog
+rm -f missing
 %{__gettextize}
 %{__libtoolize}
-aclocal
+%{__aclocal}
 echo "#undef SIZEOF_WCHAR_T" >> acconfig.h
-autoheader
+%{__autoheader}
 %{__automake}
 #aclocal
 %{__autoconf}
