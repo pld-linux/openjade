@@ -1,0 +1,10 @@
+--- openjade-20020409/configure.in.orig	Tue Apr  9 18:41:50 2002
++++ openjade-20020409/configure.in	Wed Apr 10 20:24:06 2002
+@@ -233,7 +233,6 @@
+             [define this to build the html backend])
+   AC_MSG_RESULT(yes))
+ 
+-AC_SUBST(LIBOBJS)
+ AC_OUTPUT([${PACKAGE}-${VERSION}.spec:spec.in Makefile msggen.pl style/Makefile grove/Makefile spgrove/Makefile
+ 	jade/Makefile dsssl/Makefile jadedoc/Makefile 
+ 	jadedoc/images/Makefile intl/Makefile po/Makefile.in],

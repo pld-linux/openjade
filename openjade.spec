@@ -6,8 +6,8 @@ Release:	8.20020409
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
 Source0:	%{name}-20020409.tar.gz
-#Patch0:		%{name}-DESTDIR.patch
-Patch1:		%{name}-table.patch
+Patch0:		%{name}-table.patch
+Patch1:		%{name}-ac25x.patch
 URL:		http://openjade.sourceforge.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -59,7 +59,8 @@ Biblioteki statyczne OpenJade.
 
 %prep
 %setup -q -n %{name}-20020409
-%patch1 -p0
+%patch0 -p0
+%patch1 -p1
 
 %build
 #missing files required by Makefile.am
@@ -74,15 +75,13 @@ automake -a -c -f
 #aclocal
 autoconf
 %ifarch alpha
-CXXFLAGS="-O0"
-export CXXFLAGS
+CXXFLAGS="-O0 %{?debug:-g}"
 %endif
 %configure \
 	--enable-default-catalog=/etc/sgml/catalog \
-	--enable-default-search-path=/usr/share/sgml \
+	--enable-default-search-path=/usr/share/sgml
 
-
-# it has /usr/share/Openjade hardcoded somewhere so it des not work
+# it has /usr/share/Openjade hardcoded somewhere so it does not work
 	# --datadir=%{_datadir}/sgml
 
 %{__make}
