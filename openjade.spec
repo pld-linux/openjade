@@ -1,4 +1,4 @@
-%define		snap	20020409
+%define		snap	20020531
 Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name:		openjade
@@ -6,7 +6,7 @@ Version:	1.4
 Release:	10.%{snap}
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
-Source0:	%{name}-%{snap}.tar.gz
+Source0:	OpenJade-%{version}devel.%{snap}.tar.gz
 Patch0:		%{name}-table.patch
 Patch1:		%{name}-ac25x.patch
 URL:		http://openjade.sourceforge.net/
@@ -59,30 +59,21 @@ OpenJade static libraries.
 Biblioteki statyczne OpenJade.
 
 %prep
-%setup -q -n %{name}-%{snap}
-%patch0 -p0
-%patch1 -p1
+%setup -q -n OpenJade-%{version}devel
+#%patch0 -p0
+#%patch1 -p1
 
 %build
 #remove CVS dirs
 find . -type d -name CVS -exec rm -rf {} \;
 #missing files required by Makefile.am
->ChangeLog
->INSTALL
-gettextize --copy --force
-libtoolize --copy --force
-aclocal
-echo "#undef SIZEOF_WCHAR_T" >> acconfig.h
-autoheader
-%{__automake}
-#aclocal
-%{__autoconf}
-%ifarch alpha
-CXXFLAGS="-O0 %{?debug:-g}"
-%endif
+LDFLAGS=""; export LDFLAGS
 %configure \
 	--enable-default-catalog=/etc/sgml/catalog \
-	--enable-default-search-path=/usr/share/sgml
+	--enable-default-search-path=/usr/share/sgml \
+	--enable-mif \
+	--enable-html \
+	--enable-threads
 
 # it has /usr/share/Openjade hardcoded somewhere so it does not work
 	# --datadir=%{_datadir}/sgml
@@ -93,26 +84,15 @@ CXXFLAGS="-O0 %{?debug:-g}"
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT%{_datadir}/sgml
 
-%{__make} install DESTDIR=$RPM_BUILD_ROOT
+%{__make} install DESTDIR=$RPM_BUILD_ROOT \
+	pkgdocdir=%{_defaultdocdir}/%{name}-%{version} 
 
-cp -a unicode $RPM_BUILD_ROOT%{_datadir}/sgml
 ln -sf "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}-%{version}
-
-##ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}
-#install dsssl/catalog \
-#	dsssl/builtins.dsl dsssl/extensions.dsl \
-#	dsssl/dsssl.dtd dsssl/fot.dtd dsssl/spec.dtd dsssl/style-sheet.dtd \
-#	$RPM_BUILD_ROOT%{_datadir}/sgml/%{name}-%{version}/
-#grep -v SYSTEM $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}/catalog > \
-#	$RPM_BUILD_ROOT%{_datadir}/sgml/%{name}/%{name}.cat
-
 
 # simulate jade
 ln -sf openjade $RPM_BUILD_ROOT%{_bindir}/jade
 
-gzip -9nf COPYING README
-
-%find_lang OpenJade
+%find_lang jade
 
 %clean
 rm -rf $RPM_BUILD_ROOT
@@ -120,20 +100,16 @@ rm -rf $RPM_BUILD_ROOT
 %post
 /sbin/ldconfig
 /usr/bin/install-catalog --add /etc/sgml/dsssl-%{version}-%{release}.cat \
-	%{_datadir}/sgml/%{name}-%{version}/catalog
-/usr/bin/install-catalog --add /etc/sgml/jade-unicode-%{version}-%{release}.cat \
-	%{_datadir}/sgml/unicode/catalog
+	%{_datadir}/OpenJade/catalog
 
 %postun
 /sbin/ldconfig
-/usr/bin/install-catalog --remove /etc/sgml/dsssl-%{version}.cat \
-	%{_datadir}/sgml/%{name}-%{version}/catalog
-/usr/bin/install-catalog --remove /etc/sgml/jade-unicode-%{version}-%{release}.cat \
-	%{_datadir}/sgml/unicode/catalog
+/usr/bin/install-catalog --remove /etc/sgml/dsssl-%{version}-%{release}.cat \
+	%{_datadir}/OpenJade/catalog
 
-%files -f OpenJade.lang
+%files -f jade.lang
 %defattr(644,root,root,755)
-%doc jadedoc/ dsssl/ README.gz COPYING.gz
+%doc %{_defaultdocdir}/%{name}-%{version}
 %attr(755,root,root) %{_bindir}/*
 %attr(755,root,root) %{_libdir}/lib*.so.*.*
 %{_datadir}/sgml/*
