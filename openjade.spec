@@ -1,13 +1,13 @@
-%define		snap	20020531
+%define		pre	1
 Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name:		openjade
-Version:	1.4
-Release:	12.%{snap}.1
+Version:	1.3.3
+Release:	0.1
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
-Source0:	OpenJade-%{version}devel.%{snap}.tar.gz
-# Source0-md5: 3fa38e706113c68c2137d13814c4292b
+# Source0-md5:	cbf3d8be3e3516dcb12b751de822b48c
+Source0:	http://download.sourceforge.net/openjade/%{name}-%{version}-pre%{pre}.tar.gz
 URL:		http://openjade.sourceforge.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -59,7 +59,7 @@ OpenJade static libraries.
 Biblioteki statyczne OpenJade.
 
 %prep
-%setup -q -n OpenJade-%{version}devel
+%setup -q -n openjade-%{version}-pre%{pre}
 
 %build
 #remove CVS dirs
