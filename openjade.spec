@@ -3,7 +3,8 @@ Summary:	OpenJade -- DSSSL parser
 Summary(pl):	OpenJade -- parser DSSSL
 Name:		openjade
 Version:	1.3.3
-Release:	0.1
+Release:	0.pre%{pre}.1
+Epoch:		1
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
 # Source0-md5:	cbf3d8be3e3516dcb12b751de822b48c
