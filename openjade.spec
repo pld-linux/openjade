@@ -77,13 +77,13 @@ export LDFLAGS
 %configure \
 	--enable-default-catalog=/usr/share/sgml/CATALOG:/usr/local/share/sgml/CATALOG:/etc/sgml.catalog			  			\
 	--enable-default-search-path=/usr/share/sgml:/usr/local/share/sgml
-make  
+%{__make}  
 
 %install
 rm -rf $RPM_BUILD_ROOT
 install -d $RPM_BUILD_ROOT{%{_datadir}/sgml/catalogs,%{_libdir}}
 
-make install DESTDIR=$RPM_BUILD_ROOT
+%{__make} install DESTDIR=$RPM_BUILD_ROOT
 
 cp -a unicode $RPM_BUILD_ROOT%{_datadir}/sgml
 ln -s "../OpenJade" $RPM_BUILD_ROOT%{_datadir}/sgml/%{name}
