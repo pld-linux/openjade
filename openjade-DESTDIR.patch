@@ -1,0 +1,33 @@
+diff -Nur openjade-20000320/po/Makefile.in.in openjade-20000320.new/po/Makefile.in.in
+--- openjade-20000320/po/Makefile.in.in	Wed Jan  5 11:22:25 2000
++++ openjade-20000320.new/po/Makefile.in.in	Sun Mar 26 00:08:28 2000
+@@ -25,6 +25,8 @@
+ gettextsrcdir = $(prefix)/share/gettext/po
+ subdir = po
+ 
++DESTDIR =
++
+ INSTALL = @INSTALL@
+ INSTALL_DATA = @INSTALL_DATA@
+ MKINSTALLDIRS = $(top_srcdir)/@MKINSTALLDIRS@
+@@ -113,9 +115,9 @@
+ install-data-no: all
+ install-data-yes: all
+ 	if test -r "$(MKINSTALLDIRS)"; then \
+-	  $(MKINSTALLDIRS) $(datadir); \
++	  $(MKINSTALLDIRS) $(DESTDIR)$(datadir); \
+ 	else \
+-	  $(SHELL) $(top_srcdir)/mkinstalldirs $(datadir); \
++	  $(SHELL) $(top_srcdir)/mkinstalldirs $(DESTDIR)$(datadir); \
+ 	fi
+ 	@catalogs='$(CATALOGS)'; \
+ 	for cat in $$catalogs; do \
+@@ -125,7 +127,7 @@
+ 	    *)     destdir=$(localedir);; \
+ 	  esac; \
+ 	  lang=`echo $$cat | sed 's/\$(CATOBJEXT)$$//'`; \
+-	  dir=$$destdir/$$lang/LC_MESSAGES; \
++	  dir=$(DESTDIR)$$destdir/$$lang/LC_MESSAGES; \
+ 	  if test -r "$(MKINSTALLDIRS)"; then \
+ 	    $(MKINSTALLDIRS) $$dir; \
+ 	  else \
