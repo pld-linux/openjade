@@ -1,6 +1,6 @@
 %define		pre	1
-Summary:	OpenJade -- DSSSL parser
-Summary(pl):	OpenJade -- parser DSSSL
+Summary:	OpenJade - DSSSL parser
+Summary(pl):	OpenJade - parser DSSSL
 Name:		openjade
 Version:	1.3.3
 Release:	0.pre%{pre}.5
@@ -15,7 +15,7 @@ BuildRequires:	autoconf
 BuildRequires:	automake
 BuildRequires:	libtool
 BuildRequires:	gettext-devel
-BuildRequires:	opensp-devel >= 1:1.5.1
+BuildRequires:	opensp-devel >= 2:1.5.1
 BuildRequires:	perl
 Requires(post,postun):	/sbin/ldconfig
 Requires(post,postun):	sgml-common
