@@ -1,7 +1,0 @@
-PUBLIC "-//James Clark//DTD DSSSL Flow Object Tree//EN" "openjade/fot.dtd"
-PUBLIC "ISO/IEC 10179:1996//DTD DSSSL Architecture//EN" "openjade/dsssl.dtd"
-PUBLIC "-//James Clark//DTD DSSSL Style Sheet//EN" "openjade/style-sheet.dtd"
-PUBLIC "-//OpenJade//DTD DSSSL Style Sheet//EN" "openjade/style-sheet.dtd"
-SYSTEM "builtins.dsl" "openjade/builtins.dsl"
-PUBLIC "-//SGML Open:TR95xx//SYNTAX Extended (ISO/IEC 10646-1:1993 repertoire)//EN" "openjade/unicode.syn"
--- SGMLDECL "openjade/unicode.sd" --
