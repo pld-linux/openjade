@@ -1,0 +1,3873 @@
+diff -Nur openjade-1.3.3-pre1.orig/config/configure.in openjade-1.3.3-pre1/config/configure.in
+--- openjade-1.3.3-pre1.orig/config/configure.in	Fri Apr 18 21:54:53 2003
++++ openjade-1.3.3-pre1/config/configure.in	Mon Jun 30 12:16:16 2003
+@@ -172,6 +172,14 @@
+ AC_CHECK_FUNC(gettext,[AC_DEFINE(SP_HAVE_GETTEXT)],
+   [AC_CHECK_LIB(intl,gettext,[AC_DEFINE(SP_HAVE_GETTEXT) LIBS="$LIBS -lintl"])])
+ 
++ALL_LINGUAS="de sv ja"
++AM_GNU_GETTEXT
++AC_CHECK_HEADERS(locale.h)
++AC_DEFINE_UNQUOTED(OPENJADE_LOCALE_DIR, "${prefix}/share/locale", [location of message catalogs])
++OPENJADE_MESSAGE_DOMAIN=jade
++AC_DEFINE_UNQUOTED(OPENJADE_MESSAGE_DOMAIN, "$OPENJADE_MESSAGE_DOMAIN", [message domain])
++AC_SUBST(OPENJADE_MESSAGE_DOMAIN)
++
+ dnl
+ dnl Check for thread support.
+ AC_CHECK_LIB(threads,cthread_fork,LIB_THREADS="-lthreads",LIB_THREADS="")
+@@ -247,5 +247,5 @@
+ dnl
+ AC_SUBST(LINKFLAGS)
+ 
+-AC_OUTPUT(Makefile Makefile.lib Makefile.prog Makefile.comm include/config.h)
++AC_OUTPUT(Makefile Makefile.lib Makefile.prog Makefile.comm include/config.h po/Makefile.in)
+ 
+diff -Nur openjade-1.3.3-pre1.orig/po/ChangeLog openjade-1.3.3-pre1/po/ChangeLog
+--- openjade-1.3.3-pre1.orig/po/ChangeLog	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/ChangeLog	Fri May 31 16:57:57 2002
+@@ -0,0 +1,13 @@
++2002-05-31  gettextize  <bug-gnu-gettext@gnu.org>
++
++	* Makefile.in.in: Upgrade to gettext-0.11.2.
++	* Rules-quot: New file, from gettext-0.11.2.
++	* boldquot.sed: New file, from gettext-0.11.2.
++	* en@boldquot.header: New file, from gettext-0.11.2.
++	* en@quot.header: New file, from gettext-0.11.2.
++	* insert-header.sin: New file, from gettext-0.11.2.
++	* quot.sed: New file, from gettext-0.11.2.
++	* remove-potcdate.sin: New file, from gettext-0.11.2.
++	* cat-id-tbl.c: Remove file.
++	* stamp-cat-id: Remove file.
++
+diff -Nur openjade-1.3.3-pre1.orig/po/Makefile.in.in openjade-1.3.3-pre1/po/Makefile.in.in
+--- openjade-1.3.3-pre1.orig/po/Makefile.in.in	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/Makefile.in.in	Fri May 31 17:19:25 2002
+@@ -0,0 +1,319 @@
++# Makefile for PO directory in any package using GNU gettext.
++# Copyright (C) 1995-1997, 2000-2002 by Ulrich Drepper <drepper@gnu.ai.mit.edu>
++#
++# This file can be copied and used freely without restrictions.  It can
++# be used in projects which are not available under the GNU General Public
++# License but which still want to provide support for the GNU gettext
++# functionality.
++# Please note that the actual code of GNU gettext is covered by the GNU
++# General Public License and is *not* in the public domain.
++
++PACKAGE = @PACKAGE@
++VERSION = @VERSION@
++
++SHELL = /bin/sh
++@SET_MAKE@
++
++srcdir = @srcdir@
++top_srcdir = @top_srcdir@
++VPATH = @srcdir@
++top_builddir = ..
++subdir = po
++
++prefix = @prefix@
++exec_prefix = @exec_prefix@
++datadir = @datadir@
++localedir = $(datadir)/locale
++gettextsrcdir = $(datadir)/gettext/po
++
++INSTALL = @INSTALL@
++INSTALL_DATA = @INSTALL_DATA@
++MKINSTALLDIRS = @MKINSTALLDIRS@
++mkinstalldirs = $(SHELL) `case "$(MKINSTALLDIRS)" in /*) echo "$(MKINSTALLDIRS)" ;; *) echo "$(top_builddir)/$(MKINSTALLDIRS)" ;; esac`
++
++GMSGFMT = @GMSGFMT@
++MSGFMT = @MSGFMT@
++XGETTEXT = @XGETTEXT@
++MSGMERGE = msgmerge
++MSGMERGE_UPDATE = @MSGMERGE@ --update
++MSGINIT = msginit
++MSGCONV = msgconv
++MSGFILTER = msgfilter
++
++POFILES = @POFILES@
++GMOFILES = @GMOFILES@
++UPDATEPOFILES = @UPDATEPOFILES@
++DUMMYPOFILES = @DUMMYPOFILES@
++DISTFILES.common = Makefile.in.in Makevars remove-potcdate.sin \
++$(DISTFILES.common.extra1) $(DISTFILES.common.extra2) $(DISTFILES.common.extra3)
++DISTFILES = $(DISTFILES.common) POTFILES.in $(DOMAIN).pot \
++$(POFILES) $(GMOFILES) \
++$(DISTFILES.extra1) $(DISTFILES.extra2) $(DISTFILES.extra3)
++
++POTFILES = \
++
++CATALOGS = @CATALOGS@
++
++# Makevars gets inserted here. (Don't remove this line!)
++
++.SUFFIXES:
++.SUFFIXES: .po .gmo .mo .sed .sin .nop .po-update
++
++.po.mo:
++	@echo "$(MSGFMT) -c -o $@ $<"; \
++	$(MSGFMT) -c -o t-$@ $< && mv t-$@ $@
++
++.po.gmo:
++	@lang=`echo $* | sed -e 's,.*/,,'`; \
++	test "$(srcdir)" = . && cdcmd="" || cdcmd="cd $(srcdir) && "; \
++	echo "$${cdcmd}rm -f $${lang}.gmo && $(GMSGFMT) -c --statistics -o $${lang}.gmo $${lang}.po"; \
++	cd $(srcdir) && rm -f $${lang}.gmo && $(GMSGFMT) -c --statistics -o t-$${lang}.gmo $${lang}.po && mv t-$${lang}.gmo $${lang}.gmo
++
++.sin.sed:
++	sed -e '/^#/d' $< > t-$@
++	mv t-$@ $@
++
++
++all: all-@USE_NLS@
++
++all-yes: $(CATALOGS)
++all-no:
++
++# Note: Target 'all' must not depend on target '$(DOMAIN).pot-update',
++# otherwise packages like GCC can not be built if only parts of the source
++# have been downloaded.
++
++$(DOMAIN).pot-update: $(POTFILES) $(srcdir)/POTFILES.in remove-potcdate.sed
++	$(XGETTEXT) --default-domain=$(DOMAIN) --directory=$(top_srcdir) \
++	  --add-comments=TRANSLATORS: $(XGETTEXT_OPTIONS) \
++	  --files-from=$(srcdir)/POTFILES.in \
++	  --copyright-holder='$(COPYRIGHT_HOLDER)'
++	test ! -f $(DOMAIN).po || { \
++	  if test -f $(srcdir)/$(DOMAIN).pot; then \
++	    sed -f remove-potcdate.sed < $(srcdir)/$(DOMAIN).pot > $(DOMAIN).1po && \
++	    sed -f remove-potcdate.sed < $(DOMAIN).po > $(DOMAIN).2po && \
++	    if cmp $(DOMAIN).1po $(DOMAIN).2po >/dev/null 2>&1; then \
++	      rm -f $(DOMAIN).1po $(DOMAIN).2po $(DOMAIN).po; \
++	    else \
++	      rm -f $(DOMAIN).1po $(DOMAIN).2po $(srcdir)/$(DOMAIN).pot && \
++	      mv $(DOMAIN).po $(srcdir)/$(DOMAIN).pot; \
++	    fi; \
++	  else \
++	    mv $(DOMAIN).po $(srcdir)/$(DOMAIN).pot; \
++	  fi; \
++	}
++
++$(srcdir)/$(DOMAIN).pot:
++	$(MAKE) $(DOMAIN).pot-update
++
++$(POFILES): $(srcdir)/$(DOMAIN).pot
++	@lang=`echo $@ | sed -e 's,.*/,,' -e 's/\.po$$//'`; \
++	test "$(srcdir)" = . && cdcmd="" || cdcmd="cd $(srcdir) && "; \
++	echo "$${cdcmd}$(MSGMERGE_UPDATE) $${lang}.po $(DOMAIN).pot"; \
++	cd $(srcdir) && $(MSGMERGE_UPDATE) $${lang}.po $(DOMAIN).pot
++
++
++install: install-exec install-data
++install-exec:
++install-data: install-data-@USE_NLS@
++	if test "$(PACKAGE)" = "gettext"; then \
++	  $(mkinstalldirs) $(DESTDIR)$(gettextsrcdir); \
++	  for file in $(DISTFILES.common); do \
++	    $(INSTALL_DATA) $(srcdir)/$$file \
++			    $(DESTDIR)$(gettextsrcdir)/$$file; \
++	  done; \
++	else \
++	  : ; \
++	fi
++install-data-no: all
++install-data-yes: all
++	$(mkinstalldirs) $(DESTDIR)$(datadir)
++	@catalogs='$(CATALOGS)'; \
++	for cat in $$catalogs; do \
++	  cat=`basename $$cat`; \
++	  lang=`echo $$cat | sed -e 's/\.gmo$$//'`; \
++	  dir=$(localedir)/$$lang/LC_MESSAGES; \
++	  $(mkinstalldirs) $(DESTDIR)$$dir; \
++	  if test -r $$cat; then realcat=$$cat; else realcat=$(srcdir)/$$cat; fi; \
++	  $(INSTALL_DATA) $$realcat $(DESTDIR)$$dir/$(DOMAIN).mo; \
++	  echo "installing $$realcat as $(DESTDIR)$$dir/$(DOMAIN).mo"; \
++	  for lc in '' $(EXTRA_LOCALE_CATEGORIES); do \
++	    if test -n "$$lc"; then \
++	      if (cd $(DESTDIR)$(localedir)/$$lang && LC_ALL=C ls -l -d $$lc 2>/dev/null) | grep ' -> ' >/dev/null; then \
++	        link=`cd $(DESTDIR)$(localedir)/$$lang && LC_ALL=C ls -l -d $$lc | sed -e 's/^.* -> //'`; \
++	        mv $(DESTDIR)$(localedir)/$$lang/$$lc $(DESTDIR)$(localedir)/$$lang/$$lc.old; \
++	        mkdir $(DESTDIR)$(localedir)/$$lang/$$lc; \
++	        (cd $(DESTDIR)$(localedir)/$$lang/$$lc.old && \
++	         for file in *; do \
++	           if test -f $$file; then \
++	             ln -s ../$$link/$$file $(DESTDIR)$(localedir)/$$lang/$$lc/$$file; \
++	           fi; \
++	         done); \
++	        rm -f $(DESTDIR)$(localedir)/$$lang/$$lc.old; \
++	      else \
++	        if test -d $(DESTDIR)$(localedir)/$$lang/$$lc; then \
++	          :; \
++	        else \
++	          rm -f $(DESTDIR)$(localedir)/$$lang/$$lc; \
++	          mkdir $(DESTDIR)$(localedir)/$$lang/$$lc; \
++	        fi; \
++	      fi; \
++	      rm -f $(DESTDIR)$(localedir)/$$lang/$$lc/$(DOMAIN).mo; \
++	      ln -s ../LC_MESSAGES/$(DOMAIN).mo $(DESTDIR)$(localedir)/$$lang/$$lc/$(DOMAIN).mo 2>/dev/null || \
++	      ln $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(DOMAIN).mo $(DESTDIR)$(localedir)/$$lang/$$lc/$(DOMAIN).mo 2>/dev/null || \
++	      cp -p $(DESTDIR)$(localedir)/$$lang/LC_MESSAGES/$(DOMAIN).mo $(DESTDIR)$(localedir)/$$lang/$$lc/$(DOMAIN).mo; \
++	      echo "installing $$realcat link as $(DESTDIR)$(localedir)/$$lang/$$lc/$(DOMAIN).mo"; \
++	    fi; \
++	  done; \
++	done
++
++install-strip: install
++
++installdirs: installdirs-exec installdirs-data
++installdirs-exec:
++installdirs-data: installdirs-data-@USE_NLS@
++	if test "$(PACKAGE)" = "gettext"; then \
++	  $(mkinstalldirs) $(DESTDIR)$(gettextsrcdir); \
++	else \
++	  : ; \
++	fi
++installdirs-data-no:
++installdirs-data-yes:
++	$(mkinstalldirs) $(DESTDIR)$(datadir)
++	@catalogs='$(CATALOGS)'; \
++	for cat in $$catalogs; do \
++	  cat=`basename $$cat`; \
++	  lang=`echo $$cat | sed -e 's/\.gmo$$//'`; \
++	  dir=$(localedir)/$$lang/LC_MESSAGES; \
++	  $(mkinstalldirs) $(DESTDIR)$$dir; \
++	  for lc in '' $(EXTRA_LOCALE_CATEGORIES); do \
++	    if test -n "$$lc"; then \
++	      if (cd $(DESTDIR)$(localedir)/$$lang && LC_ALL=C ls -l -d $$lc 2>/dev/null) | grep ' -> ' >/dev/null; then \
++	        link=`cd $(DESTDIR)$(localedir)/$$lang && LC_ALL=C ls -l -d $$lc | sed -e 's/^.* -> //'`; \
++	        mv $(DESTDIR)$(localedir)/$$lang/$$lc $(DESTDIR)$(localedir)/$$lang/$$lc.old; \
++	        mkdir $(DESTDIR)$(localedir)/$$lang/$$lc; \
++	        (cd $(DESTDIR)$(localedir)/$$lang/$$lc.old && \
++	         for file in *; do \
++	           if test -f $$file; then \
++	             ln -s ../$$link/$$file $(DESTDIR)$(localedir)/$$lang/$$lc/$$file; \
++	           fi; \
++	         done); \
++	        rm -f $(DESTDIR)$(localedir)/$$lang/$$lc.old; \
++	      else \
++	        if test -d $(DESTDIR)$(localedir)/$$lang/$$lc; then \
++	          :; \
++	        else \
++	          rm -f $(DESTDIR)$(localedir)/$$lang/$$lc; \
++	          mkdir $(DESTDIR)$(localedir)/$$lang/$$lc; \
++	        fi; \
++	      fi; \
++	    fi; \
++	  done; \
++	done
++
++# Define this as empty until I found a useful application.
++installcheck:
++
++uninstall: uninstall-exec uninstall-data
++uninstall-exec:
++uninstall-data: uninstall-data-@USE_NLS@
++	if test "$(PACKAGE)" = "gettext"; then \
++	  for file in $(DISTFILES.common); do \
++	    rm -f $(DESTDIR)$(gettextsrcdir)/$$file; \
++	  done; \
++	else \
++	  : ; \
++	fi
++uninstall-data-no:
++uninstall-data-yes:
++	catalogs='$(CATALOGS)'; \
++	for cat in $$catalogs; do \
++	  cat=`basename $$cat`; \
++	  lang=`echo $$cat | sed -e 's/\.gmo$$//'`; \
++	  for lc in LC_MESSAGES $(EXTRA_LOCALE_CATEGORIES); do \
++	    rm -f $(DESTDIR)$(localedir)/$$lang/$$lc/$(DOMAIN).mo; \
++	  done; \
++	done
++
++check: all
++
++dvi info tags TAGS ID:
++
++mostlyclean:
++	rm -f remove-potcdate.sed
++	rm -f core core.* $(DOMAIN).po $(DOMAIN).1po $(DOMAIN).2po *.new.po
++	rm -fr *.o
++
++clean: mostlyclean
++
++distclean: clean
++	rm -f Makefile Makefile.in POTFILES *.mo
++
++maintainer-clean: distclean
++	@echo "This command is intended for maintainers to use;"
++	@echo "it deletes files that may require special tools to rebuild."
++	rm -f $(GMOFILES)
++
++distdir = $(top_builddir)/$(PACKAGE)-$(VERSION)/$(subdir)
++dist distdir:
++	$(MAKE) update-po
++	@$(MAKE) dist2
++# This is a separate target because 'update-po' must be executed before.
++dist2: $(DISTFILES)
++	dists="$(DISTFILES)"; \
++	if test -f $(srcdir)/ChangeLog; then dists="$$dists ChangeLog"; fi; \
++	if test -f $(srcdir)/LINGUAS; then dists="$$dists LINGUAS"; fi; \
++	for file in $$dists; do \
++	  if test -f $$file; then \
++	    cp -p $$file $(distdir); \
++	  else \
++	    cp -p $(srcdir)/$$file $(distdir); \
++	  fi; \
++	done
++
++update-po: Makefile
++	$(MAKE) $(DOMAIN).pot-update
++	$(MAKE) $(UPDATEPOFILES)
++	$(MAKE) update-gmo
++
++# General rule for updating PO files.
++
++.nop.po-update:
++	@lang=`echo $@ | sed -e 's/\.po-update$$//'`; \
++	if test "$(PACKAGE)" = "gettext"; then PATH=`pwd`/../src:$$PATH; fi; \
++	tmpdir=`pwd`; \
++	echo "$$lang:"; \
++	test "$(srcdir)" = . && cdcmd="" || cdcmd="cd $(srcdir) && "; \
++	echo "$${cdcmd}$(MSGMERGE) $$lang.po $(DOMAIN).pot -o $$lang.new.po"; \
++	cd $(srcdir); \
++	if $(MSGMERGE) $$lang.po $(DOMAIN).pot -o $$tmpdir/$$lang.new.po; then \
++	  if cmp $$lang.po $$tmpdir/$$lang.new.po >/dev/null 2>&1; then \
++	    rm -f $$tmpdir/$$lang.new.po; \
++	  else \
++	    if mv -f $$tmpdir/$$lang.new.po $$lang.po; then \
++	      :; \
++	    else \
++	      echo "msgmerge for $$lang.po failed: cannot move $$tmpdir/$$lang.new.po to $$lang.po" 1>&2; \
++	      exit 1; \
++	    fi; \
++	  fi; \
++	else \
++	  echo "msgmerge for $$lang.po failed!" 1>&2; \
++	  rm -f $$tmpdir/$$lang.new.po; \
++	fi
++
++$(DUMMYPOFILES):
++
++update-gmo: Makefile $(GMOFILES)
++	@:
++
++Makefile: Makefile.in.in $(top_builddir)/config.status POTFILES.in
++	cd $(top_builddir) \
++	  && CONFIG_FILES=$(subdir)/$@.in CONFIG_HEADERS= \
++	       $(SHELL) ./config.status
++
++force:
++
++# Tell versions [3.59,3.63) of GNU make not to export all variables.
++# Otherwise a system limit (for SysV at least) may be exceeded.
++.NOEXPORT:
+diff -Nur openjade-1.3.3-pre1.orig/po/Makevars openjade-1.3.3-pre1/po/Makevars
+--- openjade-1.3.3-pre1.orig/po/Makevars	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/Makevars	Fri May 31 17:40:07 2002
+@@ -0,0 +1,25 @@
++# Makefile variables for PO directory in any package using GNU gettext.
++
++# Usually the message domain is the same as the package name.
++DOMAIN = jade
++
++# These two variables depend on the location of this directory.
++subdir = po
++top_builddir = ..
++
++# These options get passed to xgettext.
++XGETTEXT_OPTIONS = --keyword=_ --keyword=N_
++
++# This is the copyright holder that gets inserted into the header of the
++# $(DOMAIN).pot file.  Set this to the copyright holder of the surrounding
++# package.  (Note that the msgstr strings, extracted from the package's
++# sources, belong to the copyright holder of the package.)  Translators are
++# expected to transfer the copyright for their translations to this person
++# or entity, or to disclaim their copyright.  The empty string stands for
++# the public domain; in this case the translators are expected to disclaim
++# their copyright.
++COPYRIGHT_HOLDER = Free Software Foundation, Inc.
++
++# This is the list of locale categories, beyond LC_MESSAGES, for which the
++# message catalogs shall be used.  It is usually empty.
++EXTRA_LOCALE_CATEGORIES =
+diff -Nur openjade-1.3.3-pre1.orig/po/POTFILES.in openjade-1.3.3-pre1/po/POTFILES.in
+--- openjade-1.3.3-pre1.orig/po/POTFILES.in	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/POTFILES.in	Fri Dec  3 18:25:46 1999
+@@ -0,0 +1,7 @@
++jade/HtmlMessages.msg
++jade/JadeMessages.msg
++jade/MifMessages.msg
++jade/RtfMessages.msg
++jade/TeXMessages.msg
++style/DssslAppMessages.msg
++style/InterpreterMessages.msg
+diff -Nur openjade-1.3.3-pre1.orig/po/Rules-quot openjade-1.3.3-pre1/po/Rules-quot
+--- openjade-1.3.3-pre1.orig/po/Rules-quot	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/Rules-quot	Fri May 31 16:57:57 2002
+@@ -0,0 +1,42 @@
++# Special Makefile rules for English message catalogs with quotation marks.
++
++DISTFILES.common.extra1 = quot.sed boldquot.sed en@quot.header en@boldquot.header insert-header.sin Rules-quot
++
++.SUFFIXES: .insert-header .po-update-en
++
++en@quot.po-update: en@quot.po-update-en
++en@boldquot.po-update: en@boldquot.po-update-en
++
++.insert-header.po-update-en:
++	@lang=`echo $@ | sed -e 's/\.po-update-en$$//'`; \
++	if test "$(PACKAGE)" = "gettext"; then PATH=`pwd`/../src:$$PATH; GETTEXTLIBDIR=`cd $(top_srcdir)/src && pwd`; export GETTEXTLIBDIR; fi; \
++	tmpdir=`pwd`; \
++	echo "$$lang:"; \
++	ll=`echo $$lang | sed -e 's/@.*//'`; \
++	LC_ALL=C; export LC_ALL; \
++	cd $(srcdir); \
++	if $(MSGINIT) -i $(DOMAIN).pot --no-translator -l $$ll -o - 2>/dev/null | sed -f $$tmpdir/$$lang.insert-header | $(MSGCONV) -t UTF-8 | $(MSGFILTER) sed -f `echo $$lang | sed -e 's/.*@//'`.sed 2>/dev/null > $$tmpdir/$$lang.new.po; then \
++	  if cmp $$lang.po $$tmpdir/$$lang.new.po >/dev/null 2>&1; then \
++	    rm -f $$tmpdir/$$lang.new.po; \
++	  else \
++	    if mv -f $$tmpdir/$$lang.new.po $$lang.po; then \
++	      :; \
++	    else \
++	      echo "creation of $$lang.po failed: cannot move $$tmpdir/$$lang.new.po to $$lang.po" 1>&2; \
++	      exit 1; \
++	    fi; \
++	  fi; \
++	else \
++	  echo "creation of $$lang.po failed!" 1>&2; \
++	  rm -f $$tmpdir/$$lang.new.po; \
++	fi
++
++en@quot.insert-header: insert-header.sin
++	sed -e '/^#/d' -e 's/HEADER/en@quot.header/g' $(srcdir)/insert-header.sin > en@quot.insert-header
++
++en@boldquot.insert-header: insert-header.sin
++	sed -e '/^#/d' -e 's/HEADER/en@boldquot.header/g' $(srcdir)/insert-header.sin > en@boldquot.insert-header
++
++mostlyclean: mostlyclean-quot
++mostlyclean-quot:
++	rm -f *.insert-header
+diff -Nur openjade-1.3.3-pre1.orig/po/boldquot.sed openjade-1.3.3-pre1/po/boldquot.sed
+--- openjade-1.3.3-pre1.orig/po/boldquot.sed	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/boldquot.sed	Fri May 31 16:57:57 2002
+@@ -0,0 +1,10 @@
++s/"\([^"]*\)"/‚Äú\1‚Äù/g
++s/`\([^`']*\)'/‚Äò\1‚Äô/g
++s/ '\([^`']*\)' / ‚Äò\1‚Äô /g
++s/ '\([^`']*\)'$/ ‚Äò\1‚Äô/g
++s/^'\([^`']*\)' /‚Äò\1‚Äô /g
++s/‚Äú‚Äù/""/g
++s/‚Äú/‚Äú[1m/g
++s/‚Äù/[0m‚Äù/g
++s/‚Äò/‚Äò[1m/g
++s/‚Äô/[0m‚Äô/g
+Binary files openjade-1.3.3-pre1.orig/po/de.gmo and openjade-1.3.3-pre1/po/de.gmo differ
+diff -Nur openjade-1.3.3-pre1.orig/po/de.po openjade-1.3.3-pre1/po/de.po
+--- openjade-1.3.3-pre1.orig/po/de.po	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/de.po	Fri May 31 17:42:24 2002
+@@ -0,0 +1,873 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR HOLDER
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: OpenJade 1.4\n"
++"POT-Creation-Date: 2002-05-31 14:56+0000\n"
++"PO-Revision-Date: 2002-05-31 14:56+0000\n"
++"Last-Translator: anonymous <anonymous@example.com>\n"
++"Language-Team: Gernman <de@li.org>\n"
++"MIME-Version:: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-1\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++msgid "cannot open output file %1 (%2)"
++msgstr "Ausgabedatei %1 kann nicht geffnet werden (%2)"
++
++msgid "unknown output type %1"
++msgstr "Unbekannter Ausgabetyp %1"
++
++msgid "empty output filename"
++msgstr "Leerer Ausgabedateiname"
++
++msgid "Use the backend %1."
++msgstr ""
++
++#, fuzzy
++msgid "Send output to %1."
++msgstr "Unbekannter Ausgabetyp %1"
++
++msgid "FILE"
++msgstr ""
++
++msgid "TYPE"
++msgstr ""
++
++msgid "could not convert system identifier %1 to a single filename"
++msgstr "Konnte Systembezeichner %1 nicht in einzelnen Dateinamen konvertieren"
++
++#, fuzzy
++msgid ""
++"missing table column flow object (table-auto-width feature not fully "
++"supported)"
++msgstr ""
++"Fehlendes Tabellenspalten-Fluobjekt (table-auto-width Feature nicht "
++"vollstndig untersttzt)"
++
++msgid "nested tables are not allowed in RTF"
++msgstr "Verschachtelte Tabellen sind in RTF nicht erlaubt"
++
++msgid "could not embed %1 with clsid %2"
++msgstr "Konnte %1 nicht mit clsid %2 einbetten"
++
++msgid ""
++"TeX backend does not currently support references to page numbers of nodes "
++"other than elements"
++msgstr ""
++"TeX Ausgabe untersttzt Querverweise auf Seitenzahlen nur fr Elementknoten"
++
++msgid ""
++"TeX backend does not currently support links to nodes other than elements"
++msgstr "TeX Ausgabe untersttzt Verknpfungen nur fr Elementknoten"
++
++msgid "TeX backend does not currently support links to entities"
++msgstr "TeX Ausgabe untersttzt keine Verknpfungen auf Entitten"
++
++msgid "TeX backend does not currently support links to other SGML documents"
++msgstr "TeX Ausgabe untersttzt keine Verknpfungen auf andere SGML Dokumente"
++
++msgid "TeX backend does not currently support HyTime linkends"
++msgstr "TeX Ausgabe untersttzt keine HyTime Verknpfungsenden"
++
++msgid "TeX backend does not currently support TEI links"
++msgstr "TeX Ausgabe untersttzt keine TEI Verknpfungen"
++
++msgid "TeX backend does not currently support glyph substitution tables"
++msgstr "TeX Ausgabe untersttzt keine Glyphersetzungstabellen"
++
++msgid "%1 version %2"
++msgstr "%1 Version %2"
++
++msgid "no DSSSL specification: use -d to specify"
++msgstr "Keine DSSSL Spezifikation: verwende -d, um sie zu spezifizieren"
++
++msgid ""
++"no applicable processing instruction with title %1; available titles: %2"
++msgstr ""
++
++msgid ""
++"Options with a \"doc-\"/\"spec-\" prefix apply only to the document/"
++"specification."
++msgstr ""
++
++msgid "Enable experimental DSSSL extensions."
++msgstr ""
++
++msgid "Debug mode."
++msgstr ""
++
++#, fuzzy
++msgid "Use DSSSL specification %1."
++msgstr "Keine DSSSL Spezifikation: verwende -d, um sie zu spezifizieren"
++
++#, fuzzy
++msgid "Use DSSSL specification with title %1."
++msgstr "Keine DSSSL Spezifikation: verwende -d, um sie zu spezifizieren"
++
++msgid "Pretend that %1 appeared in the specification."
++msgstr ""
++
++msgid "Strict DSSSL compliance mode."
++msgstr ""
++
++msgid "Show open entities in error messages."
++msgstr ""
++
++msgid "Show open elements in error messages."
++msgstr ""
++
++msgid "Show error numbers in error messages."
++msgstr ""
++
++msgid "Show references in error messages."
++msgstr ""
++
++msgid "Define parameter entity %1 as \"INCLUDE\"."
++msgstr ""
++
++msgid "Enable warning %1."
++msgstr ""
++
++msgid "SYSID"
++msgstr ""
++
++msgid "DEFINITION"
++msgstr ""
++
++msgid "NAME"
++msgstr ""
++
++msgid "unexpected end of file"
++msgstr "Unerwartetes Ende der Datei"
++
++msgid "invalid character"
++msgstr "Ungltiges Zeichen"
++
++msgid "invalid character after '#'"
++msgstr "Ungltiges Zeichen nach '#'"
++
++msgid "unknown #! named constant %1"
++msgstr "Unbekannte #! benannte Konstante %1"
++
++msgid "unexpected token %1"
++msgstr "Unerwartetes Token %1"
++
++msgid "string with no closing quote"
++msgstr "Zeichenkette ohne abschlieendes Anfhrungszeichen"
++
++msgid "missing closing parenthesis"
++msgstr "Fehlende schlieende Klammer"
++
++msgid "invalid number %1"
++msgstr "Ungltige Zahl %1"
++
++msgid "invalid AFII glyph identifier %1"
++msgstr "Ungltiger AFII Glyphbezeichner %1"
++
++msgid "call of non-function object %1"
++msgstr "Aufruf des nicht-Funktionsobjektes %1"
++
++msgid "too many arguments for function"
++msgstr "Zu viele Argumente fr Funktion"
++
++msgid "odd number of keyword/value arguments"
++msgstr "Ungerade Anzahl von Schlsselwort/Wert Argumenten"
++
++msgid "missing argument for function call"
++msgstr "Fehlendes Argument fr Funktionsaufruf"
++
++msgid "syntactic keyword %1 used as variable"
++msgstr "Syntaktisches Schlsselwort %1 als Variable benutzt"
++
++msgid "reference to undefined variable %1"
++msgstr "Referenz auf undefinierte Variable %1"
++
++msgid "no character with name %1"
++msgstr "Kein Zeichen mit Namen %1"
++
++msgid "unknown top level form %1"
++msgstr "Unbekannte Top-Level Form %1"
++
++msgid "bad form %1 in mode group"
++msgstr "Schlechte Form %1 in Modusgruppe"
++
++msgid "identifier %1 already defined in same part"
++msgstr "Bezeichner %1 bereits im selben Teil definiert"
++
++msgid "first definition was here"
++msgstr "erste Definition war hier"
++
++msgid "loop in specification of value of %1"
++msgstr "Schleife in der Spezifikation des Wertes von %1"
++
++msgid "argument out of range"
++msgstr "Argument auerhalb des zulssigen Bereichs"
++
++msgid "loop in specification of value of unit %1"
++msgstr "Schleife in der Spezifikation des Wertes der Einheit %1"
++
++msgid "bad value specified for unit %1"
++msgstr "Schlechter Wert fr Einheit %1 spezifiziert"
++
++msgid "unit %1 already defined in same part"
++msgstr "Einheit %1 bereits im selben Teil definiert"
++
++msgid "quantity %1 undefined"
++msgstr "Quantitt %1 undefiniert"
++
++msgid "incompatible dimensions"
++msgstr "Inkompatible Dimensionen"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a boolean"
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist kein boolescher Wert"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a pair"
++msgstr "%2 Argument fr Funktion %1 vom falschen Type: %3 ist kein Paar"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a list"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine Liste"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a symbol"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist kein Symbol"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a string"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine Zeichenkette"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a string or symbol"
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist weder Zeichenkette noch "
++"Symbol"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a char"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist kein Zeichen"
++
++#, fuzzy
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not an ISO8601 time string"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine Zeichenkette"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a style"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist kein Stil"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an exact integer"
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine exakte ganze Zahl"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a quantity"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine Gre"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a color-space"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist kein Farbraum"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a number"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine Zahl"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a sosofo"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist kein Sosofo"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not an optional singleton "
++"node list"
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine optionale "
++"Einzelknotenliste"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not a singleton node list"
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine Einzelknotenliste"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a node list"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine Knotenliste"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a named node list"
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine benannte "
++"Knotenliste"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not a length or length-spec"
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist weder eine Lnge noch "
++"eine Lngen-Spezifikation"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not a quantity or length-spec"
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist weder eine Gre noch eine "
++"Lngen-Spezifikation"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not an integer or the symbol "
++"\"force\""
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist weder eine ganze Zahl "
++"noch das Symbol \"force\""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an address"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine Adresse"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a glyph-id"
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist kein Glyphbezeichner"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a glyph-subst-table"
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine "
++"Glyphersetzungstabelle"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not a list of pairs of glyph-"
++"ids"
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine Liste von Paaren "
++"von Glyphbezeichnern"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a procedure"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine Prozedur"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a vector"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist kein Vektor"
++
++msgid "root rule already defined in same part with same importance"
++msgstr "Root-Regel bereits im selben Teil mit derselben Wichtigkeit definiert"
++
++msgid "initial value already declared for characteristic %1 in same part"
++msgstr "Initialer Wert fr Charakteristik %1 bereits im selben Teil deklariert"
++
++msgid "first declaration was here"
++msgstr "erste Deklaration war hier"
++
++msgid "%1 is not a valid keyword in a style expression"
++msgstr "%1 ist kein gltiges Schlsselwort in einem Stilausdruck"
++
++msgid "%1 is not a valid keyword in a make expression for flow object class %2"
++msgstr ""
++"%1 ist kein gltiges Schlsselwort in einem make-Ausdruck fr Fluobjektklasse %2"
++
++msgid "%1 is not the name of any flow object class"
++msgstr "%1 ist nicht der Name einer Fluobjektklasse"
++
++msgid ""
++"content expression cannot be specified in make expression for atomic flow "
++"object class %1"
++msgstr ""
++"Inhaltsausdruck kann in einem make-Ausdruck fr die atomare Fluobjektklasse %"
++"1 nicht spezifiziert werden"
++
++msgid "value for \"label:\" not a symbol"
++msgstr "Wert fr \"label:\" ist kein Symbol"
++
++msgid "no port for label %1"
++msgstr "Kein Port fr Label %1"
++
++msgid "invalid content map"
++msgstr "Ungltige Inhaltsabbildung"
++
++msgid "content map references non-existent port %1"
++msgstr "Inhaltsabbildung referenziert nicht existierenden Port %1"
++
++msgid "invalid value for %1 characteristic"
++msgstr "Ungltiger Wert fr Charakteristik %1"
++
++msgid "no clause in cond expression matched"
++msgstr "Keine Klausel im cond-Ausdruck traf zu"
++
++msgid "no clause in case expression matched %1"
++msgstr "Keine Klausel im case-Ausdruck passte zu %1"
++
++msgid "expected \"else\" not %1"
++msgstr "Erwartete \"else\", nicht %1"
++
++msgid ""
++"sorry, cannot handle unresolvable quantities in datums in case expression"
++msgstr ""
++"Sorry, kann unauflsbare Quantitten in Datums in case-Ausdrcken nicht "
++"verarbeiten"
++
++msgid "%1"
++msgstr "%1"
++
++msgid "division by zero"
++msgstr "Teilung durch Null"
++
++msgid "procedure does not have %1 keyword argument"
++msgstr "Prozedur hat kein %1 Schlsselwortargument"
++
++msgid "argument not a keyword"
++msgstr "Argument ist kein Schlsselwort"
++
++msgid ""
++"specification document does not have the DSSSL architecture as a base "
++"architecture"
++msgstr "Die Spezifikation basiert nicht auf der DSSSL Architektur"
++
++msgid ""
++"specification document did not contain a style-specification-body element"
++msgstr "Die Spezifikation enthielt kein style-specification-body Element"
++
++msgid "unknown character name %1"
++msgstr "Unbekannter Zeichenname %1"
++
++msgid "attempt to use current node when there is none"
++msgstr "Versuch, den gegenwrtigen Knoten zu benutzen, obwohl es keinen gibt"
++
++msgid "attempt to process node in illegal context"
++msgstr "Versuch, einen Knoten in illegalem Kontext zu verarbeiten"
++
++msgid "radix must be 2, 8, 10 or 16"
++msgstr "Wurzel mu 2, 8, 10 oder 16 sein"
++
++msgid "this context requires a sosofo"
++msgstr "Dieser Kontext bentigt ein Sosofo"
++
++msgid "this context requires a style object"
++msgstr "Dieser Kontext bentigt ein Stilobjekt"
++
++msgid "procedure can only be used in evaluation of characteristic value"
++msgstr ""
++"Diese Prozedur kann nur in der Auswertung des Wertes einer Charakteristik "
++"verwendet werden"
++
++msgid "%1 color requires three arguments"
++msgstr "Eine %1 Farbe bentigt drei Argumente"
++
++msgid "arguments for %1 color must be numbers"
++msgstr "Argumente fr eine %1 Farbe mssen Zahlen sein"
++
++msgid "arguments for %1 color must be in the range 0 to 1"
++msgstr "Argumente fr eine %1 Farbe mssen zwischen 0 und 1 liegen"
++
++msgid "result of procedure in %1 color must be a number"
++msgstr "Ergebnis der Prozedur in einer %1 Farbe mu eine Zahl sein"
++
++msgid "unknown color-space family %1"
++msgstr "Unbekannte Farbraumfamilie %1"
++
++msgid "%1 color-space family does not take any arguments"
++msgstr "Die %1 Farbraumfamilie akzeptiert keine Argumente"
++
++msgid "invalid parameters for %1 color-space family"
++msgstr "Ungltige Parameter fr die %1 Farbraumfamilie"
++
++msgid "%1 is not a pre-defined inherited characteristic"
++msgstr "%1 ist keine vordefinierte vererbte Charakteristik"
++
++msgid "invalid number format %1"
++msgstr "Ungltiges Zahlformat %1"
++
++msgid "invalid character %1 in public identifier"
++msgstr "Ungltiges Zeichen in ffentlichem Bezeichner"
++
++msgid "debug %1"
++msgstr ""
++
++msgid "circular use of specification parts"
++msgstr "Zirkulre Benutzung von Spezifikationsteilen"
++
++msgid "no style-specification or external-specification with ID %1"
++msgstr "Keine style-specification oder external-specificaton mit ID %1"
++
++msgid ""
++"document did not contain any style-specifications or external-specifications"
++msgstr ""
++"Das Dokument enthielt weder style-specification noch external-specificaton "
++"Elemente"
++
++msgid "table-cell flow object not inside a table"
++msgstr "table-cell Fluobjekt nicht innerhalb einer Tabelle"
++
++msgid "table-row flow object not inside a table"
++msgstr "table-row Fluobjekt nicht innerhalb einer Tabelle"
++
++msgid "no value for node property %1"
++msgstr "Kein Wert fr Knoteneigenschaft %1"
++
++msgid "value returned by procedure was not a node-list"
++msgstr "Der Rckgabewert der Prozedur war keine Knotenliste"
++
++msgid "called from here"
++msgstr "von hier aufgerufen"
++
++msgid "called from here...(%1 calls omitted)"
++msgstr "von hier aufgerufen...(%1 Aufrufe weggelassen)"
++
++msgid "node processing loop detected"
++msgstr "Knotenverarbeitungsschleife"
++
++msgid "unquote-splicing expression does not evaluate to a list"
++msgstr "unqote-splicing Ausdruck hat keine Liste als Wert"
++
++msgid "object is read-only"
++msgstr "Objekt ist nur lesbar"
++
++msgid "assignment to top-level variable %1"
++msgstr "Zuweisung an Top-Level Variable %1"
++
++msgid "invalid call to continuation"
++msgstr "Ungltiger Aufruf einer Fortsetzung"
++
++msgid "empty generic identifier in pattern"
++msgstr "Leerer generischer Bezeichner in Muster"
++
++msgid "pattern is not a list"
++msgstr "Muster ist keine Liste"
++
++msgid "%1 cannot be used as a generic identifier in a pattern"
++msgstr ""
++"%1 kann nicht als generischer Bezeichner in einem Muster verwendet werden"
++
++msgid "%1 cannot occur in a pattern"
++msgstr "%1 kann in einem Muster nicht vorkommen"
++
++msgid "value missing for qualifier in pattern"
++msgstr "Im Muster fehlt ein Wert fr einen Qualifikator"
++
++msgid "unknown pattern qualifier %1"
++msgstr "Unbekannter Musterqualifikator %1"
++
++msgid "bad value %1 for %2 qualifier in pattern"
++msgstr "Schlechter Wert %1 fr Qualifikator %2 im Muster"
++
++msgid "repeat qualifier not allowed inside children qualifier"
++msgstr "repeat Qualifikator nicht innerhalb des children Qualifikators erlaubt"
++
++msgid "bad value for attributes qualifier in pattern"
++msgstr "Schlechter Wert fr den attributes Qualifikator im Muster"
++
++msgid "characteristic %1 applied in style rule with same specificity"
++msgstr "Charakteristik %1 in Stilregel mit derselben Spezifizitt"
++
++msgid "other style rule is here"
++msgstr "die andere Regel ist hier"
++
++msgid "node matches more than one pattern with the same specificity"
++msgstr "Knoten passt zu meheren Mustern mit derselben Spezifizitt"
++
++msgid "reference to uninitialized variable %1"
++msgstr "Referenz auf uninitialisierte Variable %1"
++
++msgid "circular use of actual value of characteristic %1"
++msgstr "Zirkulre Benutzung des aktuellen Wertes der Charakteristik %1"
++
++msgid "characteristic %1 already defined in same part"
++msgstr "Charakteristik %1 bereits im selben Teil definiert"
++
++msgid "flow object class %1 already defined in same part"
++msgstr "Fluobjektklasse %1 bereits im selben Teil definiert"
++
++msgid "mode %1 not defined"
++msgstr "Modus %1 nicht definiert"
++
++msgid "duplicate character name %1"
++msgstr "Doppelter Zeichenname %1"
++
++msgid "duplicate SDATA entity name %1"
++msgstr "Doppelter SDATA-Entittsname %1"
++
++msgid "duplicate SDATA entity text %1"
++msgstr "Doppelter SDATA-Entittstext %1"
++
++msgid "unsupported declaration will be ignored"
++msgstr "Nicht untersttzte Deklaration wird ignoriert"
++
++msgid "unsupported character repertoire %1 will be ignored"
++msgstr "Nicht untersttztes Zeichenrepertoir %1 wird ignoriert"
++
++msgid "error in declaration element"
++msgstr "Fehler in Deklarationselement"
++
++msgid "%1 is not a valid identifier"
++msgstr "%1 ist kein gltiger Bezeichner"
++
++msgid "error in language definition"
++msgstr "Fehler in Sprachdefinition"
++
++msgid "no current language"
++msgstr "Keine gegenwrtige Sprache"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a language"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine Sprache"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a positive integer"
++msgstr ""
++"%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine positive ganze Zahl"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an integer"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine ganze Zahl"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a keyword"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist kein Schlsselwort"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an alist"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist keine alist"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a list of characters"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist Zeichenliste"
++
++msgid "%2 argument for primitive %1 has wrong length"
++msgstr "%2 Argument fr Funktion %1 hat die falsche Lnge"
++
++msgid "quantity %1 can't be represented exactly"
++msgstr "Die Gre %1 kann nicht exakt reprsentiert werden"
++
++msgid "default language already declared in this part"
++msgstr "Standardsprache bereits im selben Teil deklariert"
++
++msgid "%1 not a language as required in a default-language-declaration"
++msgstr ""
++"%1 ist keine Sprache wie sie in einer default-language-declaration bentigt "
++"wird"
++
++msgid "%1 not a valid unit name"
++msgstr "%1 ist kein gltiger Einheitsname"
++
++msgid "%1 not a valid character name"
++msgstr "%1 ist kein gltiger Zeichenname"
++
++msgid "%1 not a valid character number"
++msgstr "%1 ist keine gltige Zeichennummer"
++
++msgid "unknown character property %1"
++msgstr "Unbekannte Zeicheneigenschaft %1"
++
++msgid "error in character property declaration"
++msgstr "Fehler in Zeicheneigenschaftsdeklaration"
++
++msgid "character property %1 already declared in same part"
++msgstr "Zeicheneigenschaft %1 bereits im selben Teil deklariert"
++
++msgid "added value for character property %1 already declared in same part"
++msgstr ""
++"Neuer Wert fr Zeicheneigenschaft %1, die bereits im selben Teil deklariert "
++"war"
++
++msgid "previous declaration was here"
++msgstr "vorige Deklaration war hier"
++
++msgid "value returned by procedure was not a sosofo"
++msgstr "Rckgabewert der Prozedur war kein Sosofo"
++
++msgid "loop in specification of value of character property %1"
++msgstr "Schleife in der Spezifikation des Wertes von Zeicheneigenschaft %1"
++
++msgid "value for character property %1 of wrong type: %2 not an integer"
++msgstr ""
++"Wert der Zeicheneigenschaft %1 vom falschen Type: %2 ist keine ganze Zahl"
++
++msgid ""
++"value for character property %1 of wrong type: %2 not an integer or the "
++"value \"#f\""
++msgstr ""
++"Wert der Zeicheneigenschaft %1 vom falschen Type: %2 ist weder eine ganze "
++"Zahl noch \"#f\""
++
++msgid "%1 not a style or transformation language feature"
++msgstr "%1 ist kein Feature der Stil- oder Transformationssprache"
++
++msgid "undeclared use of feature %1"
++msgstr "Undeklarierte Benutzung von Feature %1"
++
++msgid "feature %1 not supported"
++msgstr "Feature %1 nicht untersttzt"
++
++msgid "feature %1 only partially supported"
++msgstr "Feature %1 nur teilweise untersttzt"
++
++msgid "only allowed in style language"
++msgstr "Nur in der Stilsprache erlaubt"
++
++msgid "only allowed in transformation language"
++msgstr "Nur in der Transformationssprache erlaubt"
++
++msgid "style and transformation language parts mixed"
++msgstr "Vermischung von Stil- und Transformationssprache"
++
++msgid "specification is marked as partial"
++msgstr "Spezifikation ist als partiell gekennzeichnet"
++
++msgid "grove plan excluding module %1 not supported"
++msgstr "Groveplan ohne Modul %1 nicht untersttzt"
++
++msgid "grove plan including module %1 not supported"
++msgstr "Groveplan mit Modul %1 nicht untersttzt"
++
++msgid "%1 not an SGML property set module"
++msgstr "%1 ist kein Modul der SGML-Eigenschaftsmenge"
++
++msgid ""
++"Function for char-map characteristic returned non-char object %2 for "
++"character %1"
++msgstr ""
++"Die Funktion fr die char-map Charakteristik lieferte fr das Zeichen %1 das "
++"nicht-Zeichen %2"
++
++msgid ""
++"value for character property %1 of wrong type: %2 not a public identifier or "
++"the value \"#f\""
++msgstr ""
++"Wert fr Zeicheneigenschaft %1 vom falschen Typ: %2 ist weder ein ffentlicher "
++"Bezeichner noch \"#f\""
++
++#, fuzzy
++msgid "variable %1 occurs more than once in bindings"
++msgstr "Variable %1 kommt mehrfach in den Bindungen vor"
++
++msgid "exactly one of node:, subgrove: and class: needed"
++msgstr "Genau eines von node:, subgrove: und class: bentigt"
++
++msgid "add:, null:, remove:, children:, sub: make no sense with subgrove:"
++msgstr ""
++"add:, null:, remove:, children: oder sub: machen zusammen mit subgrove: "
++"keinen Sinn"
++
++msgid "remove: makes no sense with class:"
++msgstr "remove: macht keinen Sinn mit class:"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a subgrove-spec"
++msgstr "%2 Argument fr Funktion %1 vom falschen Typ: %2 ist kein subgrove-spec"
++
++msgid "wrong type: %1 not a list of create-specs"
++msgstr "Falscher Typ: %1 ist keine Liste von create-specs"
++
++msgid "wrong type: %1 not a create-spec or list of create-specs"
++msgstr "Falscher Typ: %1 ist kein create-spec und keine Liste von create-specs"
++
++msgid "query expression: %1 not a node list"
++msgstr "query-Ausdruck: %1 ist keine Knotenliste"
++
++msgid "priority expression: %1 not an exact integer"
++msgstr "Priorittsausdruck: %1 ist keine exakte ganze Zahl"
++
++msgid ""
++"flow objects at the root must be all of class scroll or all of class page-"
++"sequence or simple-page-sequence"
++msgstr ""
++"Fluobjekte an der Wurzel mssen all der Klasse scroll oder alle den Klassen "
++"page-sequence oder simple-page-sequence angehren"
++
++msgid "current flow parent has no principal port"
++msgstr "Gegenwrtiger Fluvater hat keinen Hauptport"
++
++msgid "this flow object requires a paragraph as an ancestor flow object"
++msgstr "Dieses Fluobjekt bentigt ein paragraph Fluobjekt als Fluvorgnger"
++
++msgid "flow object not accepted by port; only inline flow objects accepted"
++msgstr "Fluobjekt nicht vom Port akzeptiert: nur inline Fluobjekte akzeptiert"
++
++msgid "flow object not accepted by port; only display flow objects accepted"
++msgstr "Fluobjekt nicht vom Port akzeptiert: nur display Fluobjekte akzeptiert"
++
++msgid ""
++"flow object not accepted by port; only display or inline flow objects "
++"accepted"
++msgstr ""
++"Fluobjekt nicht vom Port akzeptiert: nur display oder inline Fluobjekte "
++"akzeptiert"
++
++msgid ""
++"flow object not accepted in a paragraph; only inline, display or paragraph-"
++"break flow objects accepted"
++msgstr ""
++"Fluobjekt nicht innerhalb eines paragraph Fluobjekts akzeptiert: nur inline, "
++"display oder paragraph-break Fluobjekte akzeptiert"
++
++msgid ""
++"a side-by-side flow object only accepts side-by-side-item flow objects as "
++"children"
++msgstr ""
++"Ein side-by-side Fluobjekt akzeptiert nur side-by-side-item Fluobjekte als "
++"Kinder"
++
++msgid ""
++"flow object not accepted by port; only math-sequence, unmath, subscript, "
++"superscript, script, mark, fence, fraction, radical, math-operator, grid, "
++"character and alignment-point flow objects accepted"
++msgstr ""
++"Fluobjekt nicht vom Port akzeptiert: nur math-sequence, unmath, subscript, "
++"superscript, script, mark, fence, fraction, radical, math-operator, grid, "
++"character und alignment-point Fluobjekte akzeptiert"
++
++msgid "flow object not accepted by port; must be grid-cell"
++msgstr "Fluobjekt nicht vom Port akzeptiert: mu ein grid-cell Fluobjekt sein"
++
++msgid ""
++"flow object not accepted by port; only a single character flow object "
++"accepted"
++msgstr ""
++"Fluobjekt nicht vom Port akzeptiert: nur ein einzelnes character Fluobjekt "
++"akzeptiert"
++
++msgid ""
++"flow object not accepted by port; in a table, only either table-part flow "
++"objects or table-column flow objects followed by table-row or table-cell "
++"flow objects are allowed"
++msgstr ""
++"Fluobjekt nicht vom Port akzeptiert: in einer Tabelle werden entweder nur "
++"table-part Fluobjekte oder table-column Fluobjekte, gefolgt von table-row "
++"oder table-column Fluobjekten, akzeptiert"
++
++msgid ""
++"flow object not accepted by port; only table-row or table-cell flow objects "
++"accepted"
++msgstr ""
++"Fluobjekt nicht vom Port akzeptiert: nur table-row oder table-cell "
++"Fluobjekte akzeptiert"
++
++msgid ""
++"flow object not accepted by port; only table-column flow objects followed by "
++"table-row or table-cell flow objects allowd"
++msgstr ""
++"Fluobjekt nicht vom Port akzeptiert: nur table-column Fluobjekte, gefolgt "
++"von table-row oder table-cell Fluobjekten, akzeptiert"
++
++msgid "flow object not accepted by port; only table-cell flow objects accepted"
++msgstr ""
++"Fluobjekt nicht vom Port akzeptiert: nur table-cell Fluobjekte akzeptiert"
++
++#, fuzzy
++msgid "priority-expression must be a number"
++msgstr "Priorittsausdruck: %1 ist keine exakte ganze Zahl"
++
++#, fuzzy
++msgid "query-expression must be a node-list"
++msgstr "query-Ausdruck: %1 ist keine Knotenliste"
++
++msgid "Sorry, non-integral priorities not implemented"
++msgstr ""
++
++#~ msgid "MIF: cannot open output file %1 (%2)"
++#~ msgstr "Ausgabedatei %1 kann nicht geffnet werden (%2)"
++
++#~ msgid "MIF: could not convert system identifier %1 to a single filename"
++#~ msgstr ""
++#~ "Konnte Systembezeichner %1 nicht in einzelnen Dateinamen konvertieren"
++
++#~ msgid "TeX backend does not currently support HTML links"
++#~ msgstr "TeX Ausgabe untersttzt keine HTML Verknpfungen"
++
++#~ msgid "syntactic keyword %1 not valid in call position"
++#~ msgstr "Syntaktisches Schlsselwort %1 in Aufrufposition nicht gltig"
++
++#~ msgid "symbol required (got %1)"
++#~ msgstr "Symbol bentigt (fand %1)"
++
++#~ msgid ""
++#~ "%2 argument for primitive %1 of wrong type: %3 neither a string not a "
++#~ "symbol"
++#~ msgstr ""
++#~ "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist weder Zeichenkette "
++#~ "noch Symbol"
++
++#~ msgid ""
++#~ "%2 argument for primitive %1 of wrong type: %3 not a valid element "
++#~ "matching pattern"
++#~ msgstr ""
++#~ "%2 Argument fr Funktion %1 vom falschen Typ: %3 ist kein gltiges "
++#~ "Elementsuchmuster"
++
++#~ msgid "duplicate declaration element (%1)"
++#~ msgstr "Doppeltes Deklarationselement (%1)"
+diff -Nur openjade-1.3.3-pre1.orig/po/en@boldquot.header openjade-1.3.3-pre1/po/en@boldquot.header
+--- openjade-1.3.3-pre1.orig/po/en@boldquot.header	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/en@boldquot.header	Fri May 31 16:57:57 2002
+@@ -0,0 +1,25 @@
++# All this catalog "translates" are quotation characters.
++# The msgids must be ASCII and therefore cannot contain real quotation
++# characters, only substitutes like grave accent (0x60), apostrophe (0x27)
++# and double quote (0x22). These substitutes look strange; see
++# http://www.cl.cam.ac.uk/~mgk25/ucs/quotes.html
++#
++# This catalog translates grave accent (0x60) and apostrophe (0x27) to
++# left single quotation mark (U+2018) and right single quotation mark (U+2019).
++# It also translates pairs of apostrophe (0x27) to
++# left single quotation mark (U+2018) and right single quotation mark (U+2019)
++# and pairs of quotation mark (0x22) to
++# left double quotation mark (U+201C) and right double quotation mark (U+201D).
++#
++# When output to an UTF-8 terminal, the quotation characters appear perfectly.
++# When output to an ISO-8859-1 terminal, the single quotation marks are
++# transliterated to apostrophes (by iconv in glibc 2.2 or newer) or to
++# grave/acute accent (by libiconv), and the double quotation marks are
++# transliterated to 0x22.
++# When output to an ASCII terminal, the single quotation marks are
++# transliterated to apostrophes, and the double quotation marks are
++# transliterated to 0x22.
++#
++# This catalog furthermore displays the text between the quotation marks in
++# bold face, assuming the VT100/XTerm escape sequences.
++#
+diff -Nur openjade-1.3.3-pre1.orig/po/en@quot.header openjade-1.3.3-pre1/po/en@quot.header
+--- openjade-1.3.3-pre1.orig/po/en@quot.header	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/en@quot.header	Fri May 31 16:57:57 2002
+@@ -0,0 +1,22 @@
++# All this catalog "translates" are quotation characters.
++# The msgids must be ASCII and therefore cannot contain real quotation
++# characters, only substitutes like grave accent (0x60), apostrophe (0x27)
++# and double quote (0x22). These substitutes look strange; see
++# http://www.cl.cam.ac.uk/~mgk25/ucs/quotes.html
++#
++# This catalog translates grave accent (0x60) and apostrophe (0x27) to
++# left single quotation mark (U+2018) and right single quotation mark (U+2019).
++# It also translates pairs of apostrophe (0x27) to
++# left single quotation mark (U+2018) and right single quotation mark (U+2019)
++# and pairs of quotation mark (0x22) to
++# left double quotation mark (U+201C) and right double quotation mark (U+201D).
++#
++# When output to an UTF-8 terminal, the quotation characters appear perfectly.
++# When output to an ISO-8859-1 terminal, the single quotation marks are
++# transliterated to apostrophes (by iconv in glibc 2.2 or newer) or to
++# grave/acute accent (by libiconv), and the double quotation marks are
++# transliterated to 0x22.
++# When output to an ASCII terminal, the single quotation marks are
++# transliterated to apostrophes, and the double quotation marks are
++# transliterated to 0x22.
++#
+diff -Nur openjade-1.3.3-pre1.orig/po/insert-header.sin openjade-1.3.3-pre1/po/insert-header.sin
+--- openjade-1.3.3-pre1.orig/po/insert-header.sin	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/insert-header.sin	Fri May 31 16:57:57 2002
+@@ -0,0 +1,23 @@
++# Sed script that inserts the file called HEADER before the header entry.
++#
++# At each occurrence of a line starting with "msgid ", we execute the following
++# commands. At the first occurrence, insert the file. At the following
++# occurrences, do nothing. The distinction between the first and the following
++# occurrences is achieved by looking at the hold space.
++/^msgid /{
++x
++# Test if the hold space is empty.
++s/m/m/
++ta
++# Yes it was empty. First occurrence. Read the file.
++r HEADER
++# Output the file's contents by reading the next line. But don't lose the
++# current line while doing this.
++g
++N
++bb
++:a
++# The hold space was nonempty. Following occurrences. Do nothing.
++x
++:b
++}
+Binary files openjade-1.3.3-pre1.orig/po/ja.gmo and openjade-1.3.3-pre1/po/ja.gmo differ
+diff -Nur openjade-1.3.3-pre1.orig/po/ja.po openjade-1.3.3-pre1/po/ja.po
+--- openjade-1.3.3-pre1.orig/po/ja.po	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/ja.po	Fri May 31 17:42:25 2002
+@@ -0,0 +1,881 @@
++# ja.po for openjade.
++# Copyright (C) 2000, 2001 SATO Satoru
++# Satoru Sato <ss@gnome.gr.jp>, 2001.
++#
++msgid ""
++msgstr ""
++"Project-Id-Version: openjade 1.4devel1\n"
++"POT-Creation-Date: 2002-05-31 14:56+0000\n"
++"PO-Revision-Date: 2000-10-15 23:59+09:00\n"
++"Last-Translator: Satoru Sato <ss@gnome.gr.jp>\n"
++"Language-Team: Japanese <translation@gnome.gr.jp>\n"
++"MIME-Version:: 1.0\n"
++"Content-Type: text/plain; charset=euc-jp\n"
++"Content-Transfer-Encoding: 8bit\n"
++
++msgid "cannot open output file %1 (%2)"
++msgstr "•’•°•§•Î %1 (%2) §Ú≥´§±§ﬁ§ª§Û"
++
++msgid "unknown output type %1"
++msgstr "…‘Ã¿§ Ω–Œœ•ø•§•◊ %1"
++
++msgid "empty output filename"
++msgstr "Ω–Œœ•’•°•§•ÎÃæ§¨§¢§Í§ﬁ§ª§Û"
++
++msgid "Use the backend %1."
++msgstr "•–•√•Ø•®•Û•… %1 §Úª»Õ—"
++
++msgid "Send output to %1."
++msgstr "Ω–Œœ§Ú %1 §À¡˜§Í§ﬁ§π"
++
++msgid "FILE"
++msgstr "FILE"
++
++msgid "TYPE"
++msgstr "TYPE"
++
++msgid "could not convert system identifier %1 to a single filename"
++msgstr "•∑•π•∆•‡º± Ãª“ %1 §Ú√±∞Ï•’•°•§•ÎÃæ§À —¥π§«§≠§ﬁ§ª§Û§«§∑§ø"
++
++msgid ""
++"missing table column flow object (table-auto-width feature not fully "
++"supported)"
++msgstr ""
++"•∆°º•÷•Îπ‘•’•Ì°º•™•÷•∏•ß•Ø•»§¨§ﬂ§ƒ§´§Í§ﬁ§ª§Û(table-auto-width µ°«Ω§Œ•µ•›°º•»"
++"§œ…‘¥∞¡¥§«§π)"
++
++msgid "nested tables are not allowed in RTF"
++msgstr "∆˛§Ïª“§Œ•∆°º•÷•Î§œ RTF §«§œµˆ§µ§Ï§∆§§§ﬁ§ª§Û"
++
++msgid "could not embed %1 with clsid %2"
++msgstr "%1 §Ú clsid %2 §ÀÀ‰§·π˛§·§ﬁ§ª§Û§«§∑§ø"
++
++msgid ""
++"TeX backend does not currently support references to page numbers of nodes "
++"other than elements"
++msgstr ""
++"∫£§Œ§»§≥§Ì°¢TeX •–•√•Ø•®•Û•…§œ•®•Ï•·•Û•»∞ ≥∞§Œ•Œ°º•…§Œ•⁄°º•∏»÷πÊ§ÿ§Œª≤æ»§Ú•µ"
++"•›°º•»§∑§∆§§§ﬁ§ª§Û"
++
++msgid ""
++"TeX backend does not currently support links to nodes other than elements"
++msgstr ""
++"∫£§Œ§»§≥§Ì°¢TeX •–•√•Ø•®•Û•…§œ•®•Ï•·•Û•»∞ ≥∞§Œ•Œ°º•…§ÿ§Œ•Í•Û•Ø§Ú•µ•›°º•»§∑§∆"
++"§§§ﬁ§ª§Û"
++
++msgid "TeX backend does not currently support links to entities"
++msgstr ""
++"∫£§Œ§»§≥§Ì°¢TeX •–•√•Ø•®•Û•…§œ•®•Û•∆•£•∆•£§ÿ§Œ•Í•Û•Ø§Ú•µ•›°º•»§∑§∆§§§ﬁ§ª§Û"
++
++msgid "TeX backend does not currently support links to other SGML documents"
++msgstr ""
++"∫£§Œ§»§≥§Ì°¢TeX •–•√•Ø•®•Û•…§œ¬æ§Œ SGML  ∏ΩÒ§ÿ§Œ•Í•Û•Ø§Ú•µ•›°º•»§∑§∆§§§ﬁ§ª§Û"
++
++msgid "TeX backend does not currently support HyTime linkends"
++msgstr "∫£§Œ§»§≥§Ì°¢TeX •–•√•Ø•®•Û•…§œ HyTime linkend §Ú•µ•›°º•»§∑§∆§§§ﬁ§ª§Û"
++
++msgid "TeX backend does not currently support TEI links"
++msgstr "∫£§Œ§»§≥§Ì°¢TeX •–•√•Ø•®•Û•…§œ TEI •Í•Û•Ø§Ú•µ•›°º•»§∑§∆§§§ﬁ§ª§Û"
++
++msgid "TeX backend does not currently support glyph substitution tables"
++msgstr ""
++"∫£§Œ§»§≥§Ì°¢TeX •–•√•Ø•®•Û•…§œ glyph ¬ÂÕ—•∆°º•÷•Î§Ú•µ•›°º•»§∑§∆§§§ﬁ§ª§Û"
++
++msgid "%1 version %2"
++msgstr "%1 •–°º•∏•Á•Û %2"
++
++msgid "no DSSSL specification: use -d to specify"
++msgstr "DSSSL Ã§ªÿƒÍ: -d •™•◊•∑•Á•Û§Úª»§√§∆ªÿƒÍ§∑§∆≤º§µ§§"
++
++msgid ""
++"no applicable processing instruction with title %1; available titles: %2"
++msgstr "title %1 §À¬–§∑…‘≈¨¿⁄§ ΩËÕ˝ÃøŒ·§«§π°£≤ƒ«Ω§  title §œ: %2"
++
++msgid ""
++"Options with a \"doc-\"/\"spec-\" prefix apply only to the document/"
++"specification."
++msgstr ""
++"\"doc-\"/\"spec-\" prefix …’§Œ•™•◊•∑•Á•Û§œ document/specification §À¬–§∑§∆§Œ"
++"§ﬂ≈¨Õ—≤ƒ«Ω§«§π"
++
++msgid "Enable experimental DSSSL extensions."
++msgstr "º¬∏≥≈™§  DSSSL ≥»ƒ•§ÚÕ≠∏˙§À§π§Î"
++
++msgid "Debug mode."
++msgstr "•«•–•√•∞•‚°º•…"
++
++msgid "Use DSSSL specification %1."
++msgstr "DSSSL ªÿƒÍ %1 §Úª»Õ—"
++
++msgid "Use DSSSL specification with title %1."
++msgstr "title %1 §»§»§‚§À DSSSL ªÿƒÍ§Úª»Õ—"
++
++msgid "Pretend that %1 appeared in the specification."
++msgstr "%1 §¨ªÿƒÍ§µ§Ï§∆§§§Î§Ë§¶§ §’§Í§Ú§π§Î"
++
++msgid "Strict DSSSL compliance mode."
++msgstr "∏∑≥ §  DSSSL ƒ…Ωæ•‚°º•…"
++
++msgid "Show open entities in error messages."
++msgstr "≥´§´§Ï§ø•®•Û•∆•£•∆•£§Ú•®•È°º•·•√•ª°º•∏∆‚§«…Ωº®"
++
++msgid "Show open elements in error messages."
++msgstr "≥´§´§Ï§ø•®•Ï•·•Û•»§Ú•®•È°º•·•√•ª°º•∏∆‚§«…Ωº®"
++
++msgid "Show error numbers in error messages."
++msgstr "•®•È°º•·•√•ª°º•∏∆‚§À•®•È°º»÷πÊ§Ú…Ωº®"
++
++msgid "Show references in error messages."
++msgstr "•®•È°º•·•√•ª°º•∏∆‚§Àª≤æ»§Ú…Ωº®"
++
++msgid "Define parameter entity %1 as \"INCLUDE\"."
++msgstr "•—•È•·°º•ø•®•Û•∆•£•∆•£ %1 §Ú \"INCLUDE\" §π§Î§Ë§¶§ÀƒÍµ¡"
++
++msgid "Enable warning %1."
++msgstr "∑Ÿπ %1 §ÚÕ≠∏˙§À§π§Î"
++
++msgid "SYSID"
++msgstr "SYSID"
++
++msgid "DEFINITION"
++msgstr "DEFINITION"
++
++msgid "NAME"
++msgstr "NAME"
++
++msgid "unexpected end of file"
++msgstr "ÕΩ¥¸§ª§Ã EOF"
++
++msgid "invalid character"
++msgstr "…‘≈¨¿⁄§ •≠•„•È•Ø•ø"
++
++msgid "invalid character after '#'"
++msgstr "'#' §Œ∏Â§«…‘≈¨¿⁄§ •≠•„•È•Ø•ø"
++
++msgid "unknown #! named constant %1"
++msgstr "…‘Ã¿§ ƒÍøÙÃæ %1 §Œ #!"
++
++msgid "unexpected token %1"
++msgstr "ÕΩ¥¸§ª§Ã•»°º•Ø•Û %1"
++
++msgid "string with no closing quote"
++msgstr "•Ø•©°º•»§« ƒ§∏§∆§§§ §§ ∏ª˙ŒÛ"
++
++msgid "missing closing parenthesis"
++msgstr " ƒ§∏≥Á∏Ã§¨§¢§Í§ﬁ§ª§Û"
++
++msgid "invalid number %1"
++msgstr "…‘≈¨¿⁄§ »÷πÊ %1"
++
++msgid "invalid AFII glyph identifier %1"
++msgstr "…‘≈¨¿⁄§  AFII glyph º± Ãª“ %1"
++
++msgid "call of non-function object %1"
++msgstr "»Û¥ÿøÙ•™•÷•∏•ß•Ø•» %1 §Œ∏∆Ω–§∑"
++
++msgid "too many arguments for function"
++msgstr "¥ÿøÙ§À¬–§∑§∆∞˙øÙ§¨¬ø§π§Æ§ﬁ§π"
++
++msgid "odd number of keyword/value arguments"
++msgstr "keyword/value ∞˙øÙ§¨¥ÒøÙ∏ƒ§¢§Í§ﬁ§π"
++
++msgid "missing argument for function call"
++msgstr "¥ÿøÙ∏∆Ω–§∑§À¬–§π§Î∞˙øÙ§¨§¢§Í§ﬁ§ª§Û"
++
++msgid "syntactic keyword %1 used as variable"
++msgstr "πΩ ∏ keyword %1 §¨ —øÙ§»§∑§∆ª»§Ô§Ï§∆§§§ﬁ§π"
++
++msgid "reference to undefined variable %1"
++msgstr "Ã§ƒÍµ¡§Œ —øÙ %1 §ÿ§Œª≤æ»"
++
++msgid "no character with name %1"
++msgstr "Ãæ¡∞ %1 §À§ƒ§§§∆•≠•„•È•Ø•ø§ §∑"
++
++msgid "unknown top level form %1"
++msgstr "…‘Ã¿§ ∫«æÂ≥¨¡ÿ§«§Œ form %1"
++
++msgid "bad form %1 in mode group"
++msgstr "•‚°º•…•∞•Î°º•◊∆‚§«…‘≈¨¿⁄§  form %1"
++
++msgid "identifier %1 already defined in same part"
++msgstr "º± Ãª“ %1 §œ∆±§∏…Ù ¨§«¥˚§ÀƒÍµ¡§µ§Ï§∆§§§ﬁ§π"
++
++msgid "first definition was here"
++msgstr "∫«ΩÈ§ŒƒÍµ¡§œ§≥§≥§«§∑§ø"
++
++msgid "loop in specification of value of %1"
++msgstr "%1 §Œ√Õ§ŒªÿƒÍ∆‚§À•Î°º•◊§¨§¢§Í§ﬁ§π"
++
++msgid "argument out of range"
++msgstr "∞˙øÙ§œ»œ∞œ≥∞§«§π"
++
++msgid "loop in specification of value of unit %1"
++msgstr "•Ê•À•√•» %1 §Œ√Õ§ŒªÿƒÍ∆‚§«•Î°º•◊§¨§¢§Í§ﬁ§π"
++
++msgid "bad value specified for unit %1"
++msgstr "•Ê•À•√•» %1 §À¬–§∑§∆…‘≈¨¿⁄§ √Õ§¨ªÿƒÍ§µ§Ï§ﬁ§∑§ø"
++
++msgid "unit %1 already defined in same part"
++msgstr "•Ê•À•√•» %1 §œ∆±§∏…Ù ¨§«¥˚§ÀƒÍµ¡§µ§Ï§∆§§§ﬁ§π"
++
++msgid "quantity %1 undefined"
++msgstr "quantity %1 §œÃ§ƒÍµ¡§«§π"
++
++msgid "incompatible dimensions"
++msgstr "Ã∑Ω‚§π§Î dimension"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a boolean"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œœ¿Õ˝√Õ (boolean) "
++"§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a pair"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ•⁄•¢ (pair) §«§œ"
++"§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a list"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ•Í•π•» (list) §«"
++"§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a symbol"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ•∑•Û•‹•Î "
++"(symbol) §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a string"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ ∏ª˙ŒÛ (string) "
++"§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a string or symbol"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ ∏ª˙ŒÛ (string) "
++"§«§‚•∑•Û•‹•Î (symbol) §«§‚§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a char"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ ∏ª˙ (char) §«§œ"
++"§¢§Í§ﬁ§ª§Û"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not an ISO8601 time string"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ ISO8601 time  ∏"
++"ª˙ŒÛ§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a style"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ•π•ø•§•Î (style) "
++"§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an exact integer"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ∏∑Ã©§ ¿∞øÙ "
++"(exact integer) §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a quantity"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ quantity §«§œ§¢"
++"§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a color-space"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ\n"
++"color-space §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a number"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œøÙª˙ (number) §«"
++"§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a sosofo"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ sosofo §«§œ§¢§Í"
++"§ﬁ§ª§Û"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not an optional singleton "
++"node list"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ•™•◊•∑•Á•Û§Œ√±∞Ï"
++"•Œ°º•…•Í•π•» (optional singleton node list) §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not a singleton node list"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ√±∞Ï•Œ°º•…•Í•π•» "
++"(singleton node list) §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a node list"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ•Œ°º•…•Í•π•» "
++"(node list) §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a named node list"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œÃæ¡∞…’§≠•Œ°º•…•Í"
++"•π•» (named node list) §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not a length or length-spec"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ length §¢§Î§§§œ "
++"length-spec §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not a quantity or length-spec"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ quantity §¢§Î§§"
++"§œ length-spec §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not an integer or the symbol "
++"\"force\""
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ¿∞øÙ (integer) §¢"
++"§Î§§§œ•∑•Û•‹•Î (symbol) \"force\" §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an address"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ•¢•…•Ï•π "
++"(address) §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a glyph-id"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ glyph-id §«§œ§¢"
++"§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a glyph-subst-table"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ glyph-subset-"
++"table §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not a list of pairs of glyph-"
++"ids"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ glyph-id §Œ•⁄•¢ "
++"(pair) §Œ•Í•π•» (list) §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a procedure"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œºÍ¬≥§≠ "
++"(procedure) §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a vector"
++msgstr ""
++"%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§π§Î)§œ…‘≈¨¿⁄§ •ø•§•◊§«§π: %3 §œ•Ÿ•Ø•»•Î "
++"(vector) §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "root rule already defined in same part with same importance"
++msgstr "root rule §œ¥˚§À∆±§∏…Ù ¨§«∆±§∏Ω≈Õ◊≈Ÿ§«ƒÍµ¡§µ§Ï§∆§§§ﬁ§π"
++
++msgid "initial value already declared for characteristic %1 in same part"
++msgstr "ΩÈ¥¸√Õ§œ¥˚§À∆±§∏…Ù ¨§«∆√¿≠ %1 §À¬–§∑§∆ƒÍµ¡§µ§Ï§∆§§§ﬁ§π"
++
++msgid "first declaration was here"
++msgstr "∫«ΩÈ§Œ¿Î∏¿§œ§≥§≥§«§π"
++
++msgid "%1 is not a valid keyword in a style expression"
++msgstr "%1 §œ•π•ø•§•Î…Ω∏Ω∆‚§«§œ…‘≈¨¿⁄§  keyword §«§π"
++
++msgid "%1 is not a valid keyword in a make expression for flow object class %2"
++msgstr ""
++"%1 §œ•’•Ì°º•™•÷•∏•ß•Ø•»•Ø•È•π %2 §À¬–§π§Î…Ω∏Ω∆‚§«§œ…‘≈¨¿⁄§  keyword §«§π"
++
++msgid "%1 is not the name of any flow object class"
++msgstr "%1 §œ•’•Ì°º•™•÷•∏•ß•Ø•»•Ø•È•π§ŒÃæ¡∞§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid ""
++"content expression cannot be specified in make expression for atomic flow "
++"object class %1"
++msgstr ""
++"•¢•»•ﬂ•√•Ø (atomic) •’•Ì°º•™•÷•∏•ß•Ø•»•Ø•È•π %1 §À¬–§π§Î…Ω∏Ω∆‚§«§œ∆‚Õ∆…Ω∏Ω "
++"(content expression) §œªÿƒÍ§«§≠§ﬁ§ª§Û"
++
++msgid "value for \"label:\" not a symbol"
++msgstr "\"label:\" §À¬–§π§Î√Õ§¨•∑•Û•‹•Î (symbol) §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "no port for label %1"
++msgstr "label %1 §À¬–§π§Î port §¨§¢§Í§ﬁ§ª§Û"
++
++msgid "invalid content map"
++msgstr "…‘≈¨¿⁄§  content map"
++
++msgid "content map references non-existent port %1"
++msgstr "content map §œ¬∏∫ﬂ§∑§ §§ port %1 §Úª≤æ»§∑§∆§§§ﬁ§π"
++
++msgid "invalid value for %1 characteristic"
++msgstr "%1 ∆√¿≠§À¬–§π§Î…‘≈¨¿⁄§ √Õ"
++
++msgid "no clause in cond expression matched"
++msgstr "cond …Ω∏Ω∆‚§«¬–±˛§π§Î clause §¨§¢§Í§ﬁ§ª§Û"
++
++msgid "no clause in case expression matched %1"
++msgstr "case …Ω∏Ω∆‚§« %1 §À¬–±˛§π§Î clause §¨§¢§Í§ﬁ§ª§Û"
++
++msgid "expected \"else\" not %1"
++msgstr "ÕΩ¥¸§µ§Ï§Î \"else\" §¨ %1 §«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid ""
++"sorry, cannot handle unresolvable quantities in datums in case expression"
++msgstr ""
++"ªƒ«∞§ §¨§È case …Ω∏Ω§Œ data ∆‚§ŒÃ§≤Ú∑Ë§Œ quantity §ÚΩËÕ˝§«§≠§ﬁ§ª§Û§«§∑§ø"
++
++msgid "%1"
++msgstr "%1"
++
++msgid "division by zero"
++msgstr "0 Ω¸ªª"
++
++msgid "procedure does not have %1 keyword argument"
++msgstr "ºÍ¬≥§≠ (procedure) §¨ %1 •≠°º•Ô°º•…∞˙øÙ§Úª˝§√§∆§§§ﬁ§ª§Û"
++
++msgid "argument not a keyword"
++msgstr "∞˙øÙ§¨•≠°º•Ô°º•…§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid ""
++"specification document does not have the DSSSL architecture as a base "
++"architecture"
++msgstr "ªÿƒÍ ∏ΩÒ§œ•Ÿ°º•π§»§ §Î DSSSL •¢°º•≠•∆•Ø•¡•„§Úª˝§√§∆§§§ﬁ§ª§Û"
++
++msgid ""
++"specification document did not contain a style-specification-body element"
++msgstr "ªÿƒÍ ∏ΩÒ§œ style-specification-body •®•Ï•·•Û•»§Ú¥ﬁ§Û§«§§§ﬁ§ª§Û§«§∑§ø"
++
++msgid "unknown character name %1"
++msgstr "…‘Ã¿§ •≠•„•È•Ø•øÃæ %1"
++
++msgid "attempt to use current node when there is none"
++msgstr "≤ø§‚§ §§§»§≠§À§œ∫£§Œ•Œ°º•…§Úª»§¶§Ë§¶§À§∑§ﬁ§π"
++
++msgid "attempt to process node in illegal context"
++msgstr "…‘≈¨¿⁄§ •≥•Û•∆•≠•π•»∆‚§Œ•Œ°º•…§ÚΩËÕ˝§π§Î§Ë§¶§À§∑§ﬁ§π"
++
++msgid "radix must be 2, 8, 10 or 16"
++msgstr "¥øÙ§œ 2°¢8°¢10°¢16 §«§ §±§Ï§–§ §Í§ﬁ§ª§Û"
++
++msgid "this context requires a sosofo"
++msgstr "§≥§Œ•≥•Û•∆•≠•π•»§œ sosofo §Ú…¨Õ◊§»§∑§ﬁ§π"
++
++msgid "this context requires a style object"
++msgstr "§≥§Œ•≥•Û•∆•≠•π•»§œ•π•ø•§•Î (style) •™•÷•∏•ß•Ø•»§Ú…¨Õ◊§»§∑§ﬁ§π"
++
++msgid "procedure can only be used in evaluation of characteristic value"
++msgstr "procedure §œ∆√¿≠√Õ§Œ…æ≤¡∆‚§«§Œ§ﬂª»Õ—§«§≠§ﬁ§π"
++
++msgid "%1 color requires three arguments"
++msgstr "%1 •´•È°º§œª∞§ƒ§Œ∞˙øÙ§Ú…¨Õ◊§»§∑§ﬁ§π"
++
++msgid "arguments for %1 color must be numbers"
++msgstr "%1 •´•È°º§À¬–§π§Î∞˙øÙ§œøÙª˙§«§ §±§Ï§–§ §Í§ﬁ§ª§Û"
++
++msgid "arguments for %1 color must be in the range 0 to 1"
++msgstr "%1 •´•È°º§À¬–§π§Î∞˙øÙ§œ 0 §´§È 1 §ﬁ§«§Œ»œ∞œ∆‚§À§ §±§Ï§–§ §Í§ﬁ§ª§Û"
++
++msgid "result of procedure in %1 color must be a number"
++msgstr "%1 •´•È°º∆‚§Œ procedure §Œ ÷§Í√Õ§œøÙª˙§«§ §±§Ï§–§ §Í§ﬁ§ª§Û"
++
++msgid "unknown color-space family %1"
++msgstr "…‘Ã¿§  color-space •’•°•ﬂ•Í %1"
++
++msgid "%1 color-space family does not take any arguments"
++msgstr "%1 color-space •’•°•ﬂ•Í§œ∞˙øÙ§Ú§»§Í§ﬁ§ª§Û"
++
++msgid "invalid parameters for %1 color-space family"
++msgstr "%1 color-space •’•°•ﬂ•Í§À¬–§∑§∆…‘≈¨¿⁄§ •—•È•·°º•ø"
++
++msgid "%1 is not a pre-defined inherited characteristic"
++msgstr "%1 §œƒÍµ¡∫—§ﬂ§Œ∑—æµ§µ§Ï§ø∆√¿≠§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "invalid number format %1"
++msgstr "…‘≈¨¿⁄§ øÙª˙•’•©°º•ﬁ•√•» %1"
++
++msgid "invalid character %1 in public identifier"
++msgstr "∏¯≥´º± Ãª“∆‚§À…‘≈¨¿⁄§  ∏ª˙ %1"
++
++msgid "debug %1"
++msgstr "•«•–•√•∞ %1"
++
++msgid "circular use of specification parts"
++msgstr "ªÿƒÍ…Ù ¨§ŒΩ€¥ƒª»Õ—"
++
++msgid "no style-specification or external-specification with ID %1"
++msgstr ""
++"ID %1 §À§ƒ§§§∆ style-specification §¢§Î§§§œ external-specification §¨§¢§Í§ﬁ§ª"
++"§Û"
++
++msgid ""
++"document did not contain any style-specifications or external-specifications"
++msgstr ""
++" ∏ΩÒ§œ style-specification §¢§Î§§§œ external-specification §Ú¥ﬁ§Û§«§§§ﬁ§ª§Û"
++
++msgid "table-cell flow object not inside a table"
++msgstr "table-cell •’•Ì°º•™•÷•∏•ß•Ø•»§œ•∆°º•÷•Î∆‚§À§¢§Í§ﬁ§ª§Û"
++
++msgid "table-row flow object not inside a table"
++msgstr "table-row •’•Ì°º•™•÷•∏•ß•Ø•»§œ•∆°º•÷•Î∆‚§À§¢§Í§ﬁ§ª§Û"
++
++msgid "no value for node property %1"
++msgstr "•Œ°º•…¬∞¿≠ %1 §À¬–§π§Î√Õ§¨§¢§Í§ﬁ§ª§Û"
++
++msgid "value returned by procedure was not a node-list"
++msgstr "procedure §Œ ÷§Í√Õ§œ•Œ°º•…•Í•π•»§«§œ§¢§Í§ﬁ§ª§Û§«§∑§ø"
++
++msgid "called from here"
++msgstr "§≥§≥§´§È∏∆§–§Ï§ﬁ§∑§ø"
++
++msgid "called from here...(%1 calls omitted)"
++msgstr "§≥§≥§´§È∏∆§–§Ï§ﬁ§∑§ø... (%1 ∏∆Ω–§∑§œæ Œ¨§µ§Ï§ﬁ§∑§ø)"
++
++msgid "node processing loop detected"
++msgstr "•Œ°º•…ΩËÕ˝•Î°º•◊§Ú∏°Ω–§∑§ﬁ§∑§ø"
++
++msgid "unquote-splicing expression does not evaluate to a list"
++msgstr "unquote-splicing …Ωº∞§œ•Í•π•»§À…æ≤¡§µ§Ï§ﬁ§ª§Û"
++
++msgid "object is read-only"
++msgstr "•™•÷•∏•ß•Ø•»§œ read-only §«§π"
++
++msgid "assignment to top-level variable %1"
++msgstr "∫«æÂ≥¨¡ÿ§Œ —øÙ %1 §À≥‰§Í≈ˆ§∆"
++
++msgid "invalid call to continuation"
++msgstr "∑—¬≥§À§ƒ§§§∆…‘≈¨¿⁄§ ∏∆Ω–§∑"
++
++msgid "empty generic identifier in pattern"
++msgstr "•—•ø°º•Û∆‚§À∂ı§Œ∞Ï»Ãº± Ãª“"
++
++msgid "pattern is not a list"
++msgstr "•—•ø°º•Û§œ•Í•π•»§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%1 cannot be used as a generic identifier in a pattern"
++msgstr "%1 §œ•—•ø°º•Û∆‚§Œ∞Ï»Ãº± Ãª“§»§∑§∆§œª»Õ—§«§≠§ﬁ§ª§Û"
++
++msgid "%1 cannot occur in a pattern"
++msgstr "%1 §œ•—•ø°º•Û∆‚§À§¢§Í§ﬁ§ª§Û"
++
++msgid "value missing for qualifier in pattern"
++msgstr "•—•ø°º•Û∆‚§Œ qualifier §À¬–§π§Î√Õ§¨§¢§Í§ﬁ§ª§Û"
++
++msgid "unknown pattern qualifier %1"
++msgstr "…‘Ã¿§ •—•ø°º•Û qualifier %1"
++
++msgid "bad value %1 for %2 qualifier in pattern"
++msgstr "•—•ø°º•Û∆‚§Œ…‘≈¨¿⁄§ √Õ %1 (%2 §À¬–§π§Î) qualifier"
++
++msgid "repeat qualifier not allowed inside children qualifier"
++msgstr "∑´§Í ÷§∑ qualifier §œª“§Œ qualifier ∆‚§«§œµˆ§µ§Ï§ﬁ§ª§Û"
++
++msgid "bad value for attributes qualifier in pattern"
++msgstr "•—•ø°º•Û∆‚§Œ¬∞¿≠ qualifier §À¬–§π§Î…‘≈¨¿⁄§ √Õ"
++
++msgid "characteristic %1 applied in style rule with same specificity"
++msgstr "∆√¿≠ %1 §œ∆±§∏ªÿƒÍ§Œ•π•ø•§•Î•Î°º•Î§À≈¨Õ—§µ§Ï§∆§§§ﬁ§π"
++
++msgid "other style rule is here"
++msgstr "¬æ§Œ•π•ø•§•Î•Î°º•Î§œ§≥§≥§«§π"
++
++msgid "node matches more than one pattern with the same specificity"
++msgstr "•Œ°º•…§œ∆±§∏ªÿƒÍ§«∞Ï§ƒ∞ æÂ§Œ•—•ø°º•Û§À∞Ï√◊§∑§ﬁ§π"
++
++msgid "reference to uninitialized variable %1"
++msgstr "ΩÈ¥¸≤Ω§µ§Ï§∆§§§  —øÙ %1 §ÿ§Œª≤æ»"
++
++msgid "circular use of actual value of characteristic %1"
++msgstr "∆√¿≠ %1 §Œº¬∫›§Œ√Õ§ÚΩ€¥ƒ§∑§∆ª»Õ—§∑§∆§§§ﬁ§π"
++
++msgid "characteristic %1 already defined in same part"
++msgstr "∆√¿≠ %1 §œ∆±§∏…Ù ¨§«¥˚§ÀƒÍµ¡§µ§Ï§∆§§§ﬁ§π"
++
++msgid "flow object class %1 already defined in same part"
++msgstr "•’•Ì°º•™•÷•∏•ß•Ø•»•Ø•È•π %1 §œ∆±§∏…Ù ¨§«¥˚§ÀƒÍµ¡§µ§Ï§∆§§§ﬁ§π"
++
++msgid "mode %1 not defined"
++msgstr "•Œ°º•… %1 §œÃ§ƒÍµ¡§«§π"
++
++msgid "duplicate character name %1"
++msgstr "Ω≈ £§π§Î∆√¿≠Ãæ %1"
++
++msgid "duplicate SDATA entity name %1"
++msgstr "Ω≈ £§π§Î SDATA •®•Û•∆•£•∆•£Ãæ %1"
++
++msgid "duplicate SDATA entity text %1"
++msgstr "Ω≈ £§π§Î SDATA •®•Û•∆•£•∆•£•∆•≠•π•» %1"
++
++msgid "unsupported declaration will be ignored"
++msgstr "•µ•›°º•»§µ§Ï§∆§§§ §§¿Î∏¿§œÃµªÎ§µ§Ï§ﬁ§π"
++
++msgid "unsupported character repertoire %1 will be ignored"
++msgstr "•µ•›°º•»§µ§Ï§∆§§§ §§•≠•„•È•Ø•ø•Ï•—°º•»•Í°º %1 §œÃµªÎ§µ§Ï§ﬁ§π"
++
++msgid "error in declaration element"
++msgstr "¿Î∏¿•®•Ï•·•Û•»∆‚§«•®•È°º"
++
++msgid "%1 is not a valid identifier"
++msgstr "%1 §œ…‘≈¨¿⁄§ º± Ãª“§«§π"
++
++msgid "error in language definition"
++msgstr "∏¿∏ÏƒÍµ¡…Ù ¨∆‚§«•®•È°º"
++
++msgid "no current language"
++msgstr "∏¿∏Ï§¨ªÿƒÍ§µ§Ï§∆§§§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a language"
++msgstr ""
++"…‘≈¨¿⁄§ •ø•§•◊§Œ %2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§∑§∆): %3 §œ∏¿∏Ï§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a positive integer"
++msgstr ""
++"…‘≈¨¿⁄§ •ø•§•◊§Œ %2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§∑§∆): %3 §œ¿µ§Œ¿∞øÙ§«§œ§¢§Í§ﬁ§ª"
++"§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an integer"
++msgstr ""
++"…‘≈¨¿⁄§ •ø•§•◊§Œ %2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§∑§∆): %3 §œ¿∞øÙ§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a keyword"
++msgstr ""
++"…‘≈¨¿⁄§ •ø•§•◊§Œ %2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§∑§∆): %3 §œ•≠°º•Ô°º•…§«§œ§¢§Í§ﬁ"
++"§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an alist"
++msgstr ""
++"…‘≈¨¿⁄§ •ø•§•◊§Œ %2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§∑§∆): %3 §œœ¢¡€•Í•π•» (alist) "
++"§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a list of characters"
++msgstr ""
++"…‘≈¨¿⁄§ •ø•§•◊§Œ %2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§∑§∆): %3 §œ ∏ª˙§Œ•Í•π•»§«§œ§¢§Í"
++"§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 has wrong length"
++msgstr "%2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§∑§∆)§œ…‘≈¨¿⁄§  length §Úª˝§√§∆§§§ﬁ§π"
++
++msgid "quantity %1 can't be represented exactly"
++msgstr "quantity %1 §Ú¿µ≥Œ§À…Ω∏Ω§«§≠§ﬁ§ª§Û"
++
++msgid "default language already declared in this part"
++msgstr "…∏Ω‡§Œ∏¿∏Ï§œ§≥§Œ…Ù ¨§«¥˚§À¿Î∏¿§µ§Ï§∆§§§ﬁ§π"
++
++msgid "%1 not a language as required in a default-language-declaration"
++msgstr "%1 §œ default-language-declaration ∆‚§«Õ◊µ·§µ§Ï§ø∏¿∏Ï§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "%1 not a valid unit name"
++msgstr "%1 §œ…‘≈¨¿⁄§ •Ê•À•√•»Ãæ§«§π"
++
++msgid "%1 not a valid character name"
++msgstr "%1 §œ…‘≈¨¿⁄§ •≠•„•È•Ø•øÃæ§«§π"
++
++msgid "%1 not a valid character number"
++msgstr "%1 §œ…‘≈¨¿⁄§ •≠•„•È•Ø•ø»÷πÊ§«§π"
++
++msgid "unknown character property %1"
++msgstr "…‘Ã¿§ •≠•„•È•Ø•ø¬∞¿≠ %1"
++
++msgid "error in character property declaration"
++msgstr "•≠•„•È•Ø•ø¬∞¿≠¿Î∏¿∆‚§«•®•È°º"
++
++msgid "character property %1 already declared in same part"
++msgstr "•≠•„•È•Ø•ø¬∞¿≠ %1 §œ∆±§∏…Ù ¨§«¥˚§À¿Î∏¿§µ§Ï§∆§§§ﬁ§π"
++
++msgid "added value for character property %1 already declared in same part"
++msgstr "•≠•„•È•Ø•ø¬∞¿≠ %1 §Œ§ø§·§Àƒ…≤√§µ§Ï§ø√Õ§œ∆±§∏…Ù ¨§«¥˚§À¿Î∏¿§µ§Ï§∆§§§ﬁ§π"
++
++msgid "previous declaration was here"
++msgstr "¡∞§Œ¿Î∏¿§œ§≥§≥§«§∑§ø"
++
++msgid "value returned by procedure was not a sosofo"
++msgstr "procedure §Œ ÷§Í√Õ§œ sosofo §«§œ§¢§Í§ﬁ§ª§Û§«§∑§ø"
++
++msgid "loop in specification of value of character property %1"
++msgstr "•≠•„•È•Ø•ø¬∞¿≠ %1 §Œ√Õ§ŒªÿƒÍ∆‚§«•Î°º•◊"
++
++msgid "value for character property %1 of wrong type: %2 not an integer"
++msgstr "…‘≈¨¿⁄§ •ø•§•◊§Œ•≠•„•È•Ø•ø¬∞¿≠ %1 §Œ√Õ: %2 §œ¿∞øÙ§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid ""
++"value for character property %1 of wrong type: %2 not an integer or the "
++"value \"#f\""
++msgstr ""
++"…‘≈¨¿⁄§ •ø•§•◊§Œ•≠•„•È•Ø•ø•◊•Ì•—•∆•£ %1 §Œ√Õ: %2 §œ¿∞øÙ§«§‚√Õ \"#f\" §«§‚§¢§Í"
++"§ﬁ§ª§Û"
++
++msgid "%1 not a style or transformation language feature"
++msgstr "%1 §œ•π•ø•§•Î§«§‚ —¥π∏¿∏Ï∆√¿≠§«§‚§¢§Í§ﬁ§ª§Û"
++
++msgid "undeclared use of feature %1"
++msgstr "¿Î∏¿§µ§Ï§∆§§§ §§∆√¿≠ %1 §Œª»Õ—"
++
++msgid "feature %1 not supported"
++msgstr "∆√¿≠ %1 §œ•µ•›°º•»§µ§Ï§∆§§§ﬁ§ª§Û"
++
++msgid "feature %1 only partially supported"
++msgstr "∆√¿≠ %1 §œ∞Ï…Ù§Œ§ﬂ§Œ•µ•›°º•»§«§π"
++
++msgid "only allowed in style language"
++msgstr "•π•ø•§•Î∏¿∏Ï∆‚§«§Œ§ﬂµˆ§µ§Ï§∆§§§ﬁ§π"
++
++msgid "only allowed in transformation language"
++msgstr " —¥π∏¿∏Ï∆‚§«§Œ§ﬂµˆ§µ§Ï§∆§§§ﬁ§π"
++
++msgid "style and transformation language parts mixed"
++msgstr "•π•ø•§•Î§» —¥π∏¿∏Ï…Ù ¨§¨∫ÆπÁ§µ§Ï§∆§§§ﬁ§π"
++
++msgid "specification is marked as partial"
++msgstr "specification §¨ partial §»§∑§∆•ﬁ°º•Ø§µ§Ï§∆§§§ﬁ§π"
++
++msgid "grove plan excluding module %1 not supported"
++msgstr "grove plan excluding •‚•∏•Â°º•Î %1 §œ•µ•›°º•»§µ§Ï§∆§§§ﬁ§ª§Û"
++
++msgid "grove plan including module %1 not supported"
++msgstr "grove plan including •‚•∏•Â°º•Î %1 §œ•µ•›°º•»§µ§Ï§∆§§§ﬁ§ª§Û"
++
++msgid "%1 not an SGML property set module"
++msgstr "%1 §œ SGML ¬∞¿≠¿ﬂƒÍ•‚•∏•Â°º•Î§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid ""
++"Function for char-map characteristic returned non-char object %2 for "
++"character %1"
++msgstr ""
++"char-map ∆√¿≠¥ÿøÙ§œ non-char •™•÷•∏•ß•Ø•» %2 §Ú ÷§∑§ﬁ§∑§ø( ∏ª˙ %1 §À¬–§∑§∆)"
++
++msgid ""
++"value for character property %1 of wrong type: %2 not a public identifier or "
++"the value \"#f\""
++msgstr "…‘≈¨¿⁄§  ∏ª˙¬∞¿≠ %1 §Œ√Õ: %2 §œ∏¯≥´º± Ãª“§«§‚√Õ \"#f\" §«§‚§¢§Í§ﬁ§ª§Û"
++
++msgid "variable %1 occurs more than once in bindings"
++msgstr " —øÙ %1 §À§œ∞Ï§ƒ∞ æÂ§Œ•–•§•Û•…§¨§ §µ§Ï§∆§§§ﬁ§π"
++
++msgid "exactly one of node:, subgrove: and class: needed"
++msgstr "∏∑Ã©§À§œ node:°¢subgrove:°¢class: §Œ∆‚§Œ§…§Ï§´∞Ï§ƒ§¨…¨Õ◊§»§µ§Ï§ﬁ§π"
++
++msgid "add:, null:, remove:, children:, sub: make no sense with subgrove:"
++msgstr ""
++"add:, null:, remove:, children:, sub: subgrove §À§ƒ§§§∆∞’Ã£§Ú§ §∑§ﬁ§ª§Û:"
++
++msgid "remove: makes no sense with class:"
++msgstr "remove: •Ø•È•π§À§ƒ§§§∆∞’Ã£§Ú§ §∑§ﬁ§ª§Û"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a subgrove-spec"
++msgstr ""
++"…‘≈¨¿⁄§ •ø•§•◊§Œ %2 ∞˙øÙ(•◊•Í•ﬂ•∆•£•÷ %1 §À¬–§∑§∆): %3 §œ subgrove-spec §«§œ"
++"§¢§Í§ﬁ§ª§Û"
++
++msgid "wrong type: %1 not a list of create-specs"
++msgstr "…‘≈¨¿⁄§ •ø•§•◊: %1 §œ create-spec §Œ•Í•π•»§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "wrong type: %1 not a create-spec or list of create-specs"
++msgstr ""
++"…‘≈¨¿⁄§ •ø•§•◊: %1 §œ create-spec §«§‚ create-spec §Œ•Í•π•»§«§‚§¢§Í§ﬁ§ª§Û"
++
++msgid "query expression: %1 not a node list"
++msgstr "Ã‰§§πÁ§Ô§ª…Ωº∞: %1 §œ•Œ°º•…•Í•π•»§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid "priority expression: %1 not an exact integer"
++msgstr "Õ•¿Ë≈Ÿ…Ωº∞: %1 §œ∏∑Ã©§ ¿∞øÙ§«§œ§¢§Í§ﬁ§ª§Û"
++
++msgid ""
++"flow objects at the root must be all of class scroll or all of class page-"
++"sequence or simple-page-sequence"
++msgstr ""
++"root §«§Œ•’•Ì°º•™•÷•∏•ß•Ø•»§œ§π§Ÿ§∆§Œ•Ø•È•π scroll §´§π§Ÿ§∆§Œ•Ø•È•π page-"
++"sequence §´ simple-page-sequence §«§ §±§Ï§–§ §Í§ﬁ§ª§Û"
++
++msgid "current flow parent has no principal port"
++msgstr "∏Ω∫ﬂ§Œ•’•Ì°º parent §œ principal port §Úª˝§¡§ﬁ§ª§Û"
++
++msgid "this flow object requires a paragraph as an ancestor flow object"
++msgstr ""
++"§≥§Œ•’•Ì°º•™•÷•∏•ß•Ø•»§œ∏∂∑ø•’•Ì°º•™•÷•∏•ß•Ø•»§»§∑§∆§Œ•—•È•∞•È•’§Ú…¨Õ◊§»§∑§ﬁ"
++"§π"
++
++msgid "flow object not accepted by port; only inline flow objects accepted"
++msgstr ""
++"port §œ•’•Ì°º•™•÷•∏•ß•Ø•»§Úµˆ§∑§ﬁ§ª§Û: inline •’•Ì°º•™•÷•∏•ß•Ø•»§¿§±§Úµˆ§∑§ﬁ"
++"§π"
++
++msgid "flow object not accepted by port; only display flow objects accepted"
++msgstr ""
++"port §œ•’•Ì°º•™•÷•∏•ß•Ø•»§Úµˆ§∑§ﬁ§ª§Û: display •’•Ì°º•™•÷•∏•ß•Ø•»§¿§±§Úµˆ§∑§ﬁ"
++"§π"
++
++msgid ""
++"flow object not accepted by port; only display or inline flow objects "
++"accepted"
++msgstr ""
++"port §œ•’•Ì°º•™•÷•∏•ß•Ø•»§Úµˆ§∑§ﬁ§ª§Û: display §¢§Î§§§œ inline •’•Ì°º•™•÷•∏•ß"
++"•Ø•»§¿§±§Úµˆ§∑§ﬁ§π"
++
++msgid ""
++"flow object not accepted in a paragraph; only inline, display or paragraph-"
++"break flow objects accepted"
++msgstr ""
++"paragraph ∆‚§«§œ•’•Ì°º•™•÷•∏•ß•Ø•»§œµˆ§µ§Ï§∆§§§ﬁ§ª§Û: inline §¢§Î§§§œ "
++"display °¢paragraph-break •’•Ì°º•™•÷•∏•ß•Ø•»§¿§±§Úµˆ§∑§ﬁ§π"
++
++msgid ""
++"a side-by-side flow object only accepts side-by-side-item flow objects as "
++"children"
++msgstr ""
++"side-by-side •’•Ì°º•™•÷•∏•ß•Ø•»§œª“§»§∑§∆§Œ side-by-side-item •’•Ì°º•™•÷•∏•ß"
++"•Ø•»§¿§±§Úµˆ§∑§ﬁ§π"
++
++msgid ""
++"flow object not accepted by port; only math-sequence, unmath, subscript, "
++"superscript, script, mark, fence, fraction, radical, math-operator, grid, "
++"character and alignment-point flow objects accepted"
++msgstr ""
++"port §œ•’•Ì°º•™•÷•∏•ß•Ø•»§Úµˆ§∑§ﬁ§ª§Û; math-sequence°¢unmath°¢subscript°¢"
++"superscript°¢script°¢mark°¢fence°¢fraction°¢radical°¢math-operator°¢grid°¢"
++"character §Ω§∑§∆ alignment-point •’•Ì°º•™•÷•∏•ß•Ø•»§¿§±§Úµˆ§∑§ﬁ§π"
++
++msgid "flow object not accepted by port; must be grid-cell"
++msgstr "port §œ•’•Ì°º•™•÷•∏•ß•Ø•»§Úµˆ§∑§ﬁ§ª§Û; grid-call §«§ §±§Ï§–§ §Í§ﬁ§ª§Û"
++
++msgid ""
++"flow object not accepted by port; only a single character flow object "
++"accepted"
++msgstr ""
++"port §œ•’•Ì°º•™•÷•∏•ß•Ø•»§Úµˆ§∑§ﬁ§ª§Û; single character •’•Ì°º•™•÷•∏•ß•Ø•»§Œ"
++"§ﬂ§¨ºı§±∆˛§Ï§È§Ï§ﬁ§π"
++
++msgid ""
++"flow object not accepted by port; in a table, only either table-part flow "
++"objects or table-column flow objects followed by table-row or table-cell "
++"flow objects are allowed"
++msgstr ""
++"port §œ•’•Ì°º•™•÷•∏•ß•Ø•»§Úµˆ§∑§ﬁ§ª§Û: table ∆‚§«°¢table-row §¢§Î§§§œ table-"
++"cell •’•Ì°º•™•÷•∏•ß•Ø•»§¨¬≥§Ø°¢table-part §¢§Î§§§œ table-column •’•Ì°º•™•÷"
++"•∏•ß•Ø•»§Œ§ﬂ§Úµˆ§∑§ﬁ§π"
++
++msgid ""
++"flow object not accepted by port; only table-row or table-cell flow objects "
++"accepted"
++msgstr ""
++"port §œ•’•Ì°º•™•÷•∏•ß•Ø•»§Úµˆ§∑§ﬁ§ª§Û; table-row §¢§Î§§§œ table-cell •’•Ì°º•™"
++"•÷•∏•ß•Ø•»§Œ§ﬂµˆ§∑§ﬁ§π°£"
++
++msgid ""
++"flow object not accepted by port; only table-column flow objects followed by "
++"table-row or table-cell flow objects allowd"
++msgstr ""
++"port §œ•’•Ì°º•™•÷•∏•ß•Ø•»§Úµˆ≤ƒ§∑§ﬁ§ª§Û; table-row §¢§Î§§§œ table-cell •’•Ì°º"
++"•™•÷•∏•ß•Ø•»§¨¬≥§Ø°¢table-column •’•Ì°º•™•÷•∏•ß•Ø•»§Œ§ﬂ§¨ºı§±∆˛§Ï§È§Ï§ﬁ§π"
++
++msgid "flow object not accepted by port; only table-cell flow objects accepted"
++msgstr ""
++"porc §œ•’•Ì°º•™•÷•∏•ß•Ø•»§Úµˆ§∑§ﬁ§ª§Û; table-cell •’•Ì°º•™•÷•∏•ß•Ø•»§Œ§ﬂ§Úµˆ"
++"§∑§ﬁ§π°£"
++
++msgid "priority-expression must be a number"
++msgstr "priority-expression §œøÙª˙§«§ §±§Ï§–§ §Í§ﬁ§ª§Û"
++
++msgid "query-expression must be a node-list"
++msgstr "query-expression §œ node-list §«§ §±§Ï§–§ §Í§ﬁ§ª§Û"
++
++msgid "Sorry, non-integral priorities not implemented"
++msgstr "ªƒ«∞§ §¨§È°¢non-integral priority §œº¬¡ı§µ§Ï§∆§§§ﬁ§ª§Û"
+diff -Nur openjade-1.3.3-pre1.orig/po/jade.pot openjade-1.3.3-pre1/po/jade.pot
+--- openjade-1.3.3-pre1.orig/po/jade.pot	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/jade.pot	Fri May 31 16:56:58 2002
+@@ -0,0 +1,715 @@
++# SOME DESCRIPTIVE TITLE.
++# Copyright (C) YEAR HOLDER
++# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
++#
++#, fuzzy
++msgid ""
++msgstr ""
++"Project-Id-Version: PACKAGE VERSION\n"
++"POT-Creation-Date: 2002-05-31 14:56+0000\n"
++"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
++"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
++"Language-Team: LANGUAGE <LL@li.org>\n"
++"MIME-Version:: 1.0\n"
++"Content-Type: text/plain; charset=CHARSET\n"
++"Content-Transfer-Encoding: ENCODING\n"
++
++msgid "cannot open output file %1 (%2)"
++msgstr ""
++
++msgid "unknown output type %1"
++msgstr ""
++
++msgid "empty output filename"
++msgstr ""
++
++msgid "Use the backend %1."
++msgstr ""
++
++msgid "Send output to %1."
++msgstr ""
++
++msgid "FILE"
++msgstr ""
++
++msgid "TYPE"
++msgstr ""
++
++msgid "could not convert system identifier %1 to a single filename"
++msgstr ""
++
++msgid "missing table column flow object (table-auto-width feature not fully supported)"
++msgstr ""
++
++msgid "nested tables are not allowed in RTF"
++msgstr ""
++
++msgid "could not embed %1 with clsid %2"
++msgstr ""
++
++msgid "TeX backend does not currently support references to page numbers of nodes other than elements"
++msgstr ""
++
++msgid "TeX backend does not currently support links to nodes other than elements"
++msgstr ""
++
++msgid "TeX backend does not currently support links to entities"
++msgstr ""
++
++msgid "TeX backend does not currently support links to other SGML documents"
++msgstr ""
++
++msgid "TeX backend does not currently support HyTime linkends"
++msgstr ""
++
++msgid "TeX backend does not currently support TEI links"
++msgstr ""
++
++msgid "TeX backend does not currently support glyph substitution tables"
++msgstr ""
++
++msgid "%1 version %2"
++msgstr ""
++
++msgid "no DSSSL specification: use -d to specify"
++msgstr ""
++
++msgid "no applicable processing instruction with title %1; available titles: %2"
++msgstr ""
++
++msgid "Options with a \"doc-\"/\"spec-\" prefix apply only to the document/specification."
++msgstr ""
++
++msgid "Enable experimental DSSSL extensions."
++msgstr ""
++
++msgid "Debug mode."
++msgstr ""
++
++msgid "Use DSSSL specification %1."
++msgstr ""
++
++msgid "Use DSSSL specification with title %1."
++msgstr ""
++
++msgid "Pretend that %1 appeared in the specification."
++msgstr ""
++
++msgid "Strict DSSSL compliance mode."
++msgstr ""
++
++msgid "Show open entities in error messages."
++msgstr ""
++
++msgid "Show open elements in error messages."
++msgstr ""
++
++msgid "Show error numbers in error messages."
++msgstr ""
++
++msgid "Show references in error messages."
++msgstr ""
++
++msgid "Define parameter entity %1 as \"INCLUDE\"."
++msgstr ""
++
++msgid "Enable warning %1."
++msgstr ""
++
++msgid "SYSID"
++msgstr ""
++
++msgid "DEFINITION"
++msgstr ""
++
++msgid "NAME"
++msgstr ""
++
++msgid "unexpected end of file"
++msgstr ""
++
++msgid "invalid character"
++msgstr ""
++
++msgid "invalid character after '#'"
++msgstr ""
++
++msgid "unknown #! named constant %1"
++msgstr ""
++
++msgid "unexpected token %1"
++msgstr ""
++
++msgid "string with no closing quote"
++msgstr ""
++
++msgid "missing closing parenthesis"
++msgstr ""
++
++msgid "invalid number %1"
++msgstr ""
++
++msgid "invalid AFII glyph identifier %1"
++msgstr ""
++
++msgid "call of non-function object %1"
++msgstr ""
++
++msgid "too many arguments for function"
++msgstr ""
++
++msgid "odd number of keyword/value arguments"
++msgstr ""
++
++msgid "missing argument for function call"
++msgstr ""
++
++msgid "syntactic keyword %1 used as variable"
++msgstr ""
++
++msgid "reference to undefined variable %1"
++msgstr ""
++
++msgid "no character with name %1"
++msgstr ""
++
++msgid "unknown top level form %1"
++msgstr ""
++
++msgid "bad form %1 in mode group"
++msgstr ""
++
++msgid "identifier %1 already defined in same part"
++msgstr ""
++
++msgid "first definition was here"
++msgstr ""
++
++msgid "loop in specification of value of %1"
++msgstr ""
++
++msgid "argument out of range"
++msgstr ""
++
++msgid "loop in specification of value of unit %1"
++msgstr ""
++
++msgid "bad value specified for unit %1"
++msgstr ""
++
++msgid "unit %1 already defined in same part"
++msgstr ""
++
++msgid "quantity %1 undefined"
++msgstr ""
++
++msgid "incompatible dimensions"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a boolean"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a pair"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a list"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a symbol"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a string"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a string or symbol"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a char"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an ISO8601 time string"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a style"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an exact integer"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a quantity"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a color-space"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a number"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a sosofo"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an optional singleton node list"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a singleton node list"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a node list"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a named node list"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a length or length-spec"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a quantity or length-spec"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an integer or the symbol \"force\""
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an address"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a glyph-id"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a glyph-subst-table"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a list of pairs of glyph-ids"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a procedure"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a vector"
++msgstr ""
++
++msgid "root rule already defined in same part with same importance"
++msgstr ""
++
++msgid "initial value already declared for characteristic %1 in same part"
++msgstr ""
++
++msgid "first declaration was here"
++msgstr ""
++
++msgid "%1 is not a valid keyword in a style expression"
++msgstr ""
++
++msgid "%1 is not a valid keyword in a make expression for flow object class %2"
++msgstr ""
++
++msgid "%1 is not the name of any flow object class"
++msgstr ""
++
++msgid "content expression cannot be specified in make expression for atomic flow object class %1"
++msgstr ""
++
++msgid "value for \"label:\" not a symbol"
++msgstr ""
++
++msgid "no port for label %1"
++msgstr ""
++
++msgid "invalid content map"
++msgstr ""
++
++msgid "content map references non-existent port %1"
++msgstr ""
++
++msgid "invalid value for %1 characteristic"
++msgstr ""
++
++msgid "no clause in cond expression matched"
++msgstr ""
++
++msgid "no clause in case expression matched %1"
++msgstr ""
++
++msgid "expected \"else\" not %1"
++msgstr ""
++
++msgid "sorry, cannot handle unresolvable quantities in datums in case expression"
++msgstr ""
++
++msgid "%1"
++msgstr ""
++
++msgid "division by zero"
++msgstr ""
++
++msgid "procedure does not have %1 keyword argument"
++msgstr ""
++
++msgid "argument not a keyword"
++msgstr ""
++
++msgid "specification document does not have the DSSSL architecture as a base architecture"
++msgstr ""
++
++msgid "specification document did not contain a style-specification-body element"
++msgstr ""
++
++msgid "unknown character name %1"
++msgstr ""
++
++msgid "attempt to use current node when there is none"
++msgstr ""
++
++msgid "attempt to process node in illegal context"
++msgstr ""
++
++msgid "radix must be 2, 8, 10 or 16"
++msgstr ""
++
++msgid "this context requires a sosofo"
++msgstr ""
++
++msgid "this context requires a style object"
++msgstr ""
++
++msgid "procedure can only be used in evaluation of characteristic value"
++msgstr ""
++
++msgid "%1 color requires three arguments"
++msgstr ""
++
++msgid "arguments for %1 color must be numbers"
++msgstr ""
++
++msgid "arguments for %1 color must be in the range 0 to 1"
++msgstr ""
++
++msgid "result of procedure in %1 color must be a number"
++msgstr ""
++
++msgid "unknown color-space family %1"
++msgstr ""
++
++msgid "%1 color-space family does not take any arguments"
++msgstr ""
++
++msgid "invalid parameters for %1 color-space family"
++msgstr ""
++
++msgid "%1 is not a pre-defined inherited characteristic"
++msgstr ""
++
++msgid "invalid number format %1"
++msgstr ""
++
++msgid "invalid character %1 in public identifier"
++msgstr ""
++
++msgid "debug %1"
++msgstr ""
++
++msgid "circular use of specification parts"
++msgstr ""
++
++msgid "no style-specification or external-specification with ID %1"
++msgstr ""
++
++msgid "document did not contain any style-specifications or external-specifications"
++msgstr ""
++
++msgid "table-cell flow object not inside a table"
++msgstr ""
++
++msgid "table-row flow object not inside a table"
++msgstr ""
++
++msgid "no value for node property %1"
++msgstr ""
++
++msgid "value returned by procedure was not a node-list"
++msgstr ""
++
++msgid "called from here"
++msgstr ""
++
++msgid "called from here...(%1 calls omitted)"
++msgstr ""
++
++msgid "node processing loop detected"
++msgstr ""
++
++msgid "unquote-splicing expression does not evaluate to a list"
++msgstr ""
++
++msgid "object is read-only"
++msgstr ""
++
++msgid "assignment to top-level variable %1"
++msgstr ""
++
++msgid "invalid call to continuation"
++msgstr ""
++
++msgid "empty generic identifier in pattern"
++msgstr ""
++
++msgid "pattern is not a list"
++msgstr ""
++
++msgid "%1 cannot be used as a generic identifier in a pattern"
++msgstr ""
++
++msgid "%1 cannot occur in a pattern"
++msgstr ""
++
++msgid "value missing for qualifier in pattern"
++msgstr ""
++
++msgid "unknown pattern qualifier %1"
++msgstr ""
++
++msgid "bad value %1 for %2 qualifier in pattern"
++msgstr ""
++
++msgid "repeat qualifier not allowed inside children qualifier"
++msgstr ""
++
++msgid "bad value for attributes qualifier in pattern"
++msgstr ""
++
++msgid "characteristic %1 applied in style rule with same specificity"
++msgstr ""
++
++msgid "other style rule is here"
++msgstr ""
++
++msgid "node matches more than one pattern with the same specificity"
++msgstr ""
++
++msgid "reference to uninitialized variable %1"
++msgstr ""
++
++msgid "circular use of actual value of characteristic %1"
++msgstr ""
++
++msgid "characteristic %1 already defined in same part"
++msgstr ""
++
++msgid "flow object class %1 already defined in same part"
++msgstr ""
++
++msgid "mode %1 not defined"
++msgstr ""
++
++msgid "duplicate character name %1"
++msgstr ""
++
++msgid "duplicate SDATA entity name %1"
++msgstr ""
++
++msgid "duplicate SDATA entity text %1"
++msgstr ""
++
++msgid "unsupported declaration will be ignored"
++msgstr ""
++
++msgid "unsupported character repertoire %1 will be ignored"
++msgstr ""
++
++msgid "error in declaration element"
++msgstr ""
++
++msgid "%1 is not a valid identifier"
++msgstr ""
++
++msgid "error in language definition"
++msgstr ""
++
++msgid "no current language"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a language"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a positive integer"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an integer"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a keyword"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an alist"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a list of characters"
++msgstr ""
++
++msgid "%2 argument for primitive %1 has wrong length"
++msgstr ""
++
++msgid "quantity %1 can't be represented exactly"
++msgstr ""
++
++msgid "default language already declared in this part"
++msgstr ""
++
++msgid "%1 not a language as required in a default-language-declaration"
++msgstr ""
++
++msgid "%1 not a valid unit name"
++msgstr ""
++
++msgid "%1 not a valid character name"
++msgstr ""
++
++msgid "%1 not a valid character number"
++msgstr ""
++
++msgid "unknown character property %1"
++msgstr ""
++
++msgid "error in character property declaration"
++msgstr ""
++
++msgid "character property %1 already declared in same part"
++msgstr ""
++
++msgid "added value for character property %1 already declared in same part"
++msgstr ""
++
++msgid "previous declaration was here"
++msgstr ""
++
++msgid "value returned by procedure was not a sosofo"
++msgstr ""
++
++msgid "loop in specification of value of character property %1"
++msgstr ""
++
++msgid "value for character property %1 of wrong type: %2 not an integer"
++msgstr ""
++
++msgid "value for character property %1 of wrong type: %2 not an integer or the value \"#f\""
++msgstr ""
++
++msgid "%1 not a style or transformation language feature"
++msgstr ""
++
++msgid "undeclared use of feature %1"
++msgstr ""
++
++msgid "feature %1 not supported"
++msgstr ""
++
++msgid "feature %1 only partially supported"
++msgstr ""
++
++msgid "only allowed in style language"
++msgstr ""
++
++msgid "only allowed in transformation language"
++msgstr ""
++
++msgid "style and transformation language parts mixed"
++msgstr ""
++
++msgid "specification is marked as partial"
++msgstr ""
++
++msgid "grove plan excluding module %1 not supported"
++msgstr ""
++
++msgid "grove plan including module %1 not supported"
++msgstr ""
++
++msgid "%1 not an SGML property set module"
++msgstr ""
++
++msgid "Function for char-map characteristic returned non-char object %2 for character %1"
++msgstr ""
++
++msgid "value for character property %1 of wrong type: %2 not a public identifier or the value \"#f\""
++msgstr ""
++
++msgid "variable %1 occurs more than once in bindings"
++msgstr ""
++
++msgid "exactly one of node:, subgrove: and class: needed"
++msgstr ""
++
++msgid "add:, null:, remove:, children:, sub: make no sense with subgrove:"
++msgstr ""
++
++msgid "remove: makes no sense with class:"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a subgrove-spec"
++msgstr ""
++
++msgid "wrong type: %1 not a list of create-specs"
++msgstr ""
++
++msgid "wrong type: %1 not a create-spec or list of create-specs"
++msgstr ""
++
++msgid "query expression: %1 not a node list"
++msgstr ""
++
++msgid "priority expression: %1 not an exact integer"
++msgstr ""
++
++msgid "flow objects at the root must be all of class scroll or all of class page-sequence or simple-page-sequence"
++msgstr ""
++
++msgid "current flow parent has no principal port"
++msgstr ""
++
++msgid "this flow object requires a paragraph as an ancestor flow object"
++msgstr ""
++
++msgid "flow object not accepted by port; only inline flow objects accepted"
++msgstr ""
++
++msgid "flow object not accepted by port; only display flow objects accepted"
++msgstr ""
++
++msgid "flow object not accepted by port; only display or inline flow objects accepted"
++msgstr ""
++
++msgid "flow object not accepted in a paragraph; only inline, display or paragraph-break flow objects accepted"
++msgstr ""
++
++msgid "a side-by-side flow object only accepts side-by-side-item flow objects as children"
++msgstr ""
++
++msgid "flow object not accepted by port; only math-sequence, unmath, subscript, superscript, script, mark, fence, fraction, radical, math-operator, grid, character and alignment-point flow objects accepted"
++msgstr ""
++
++msgid "flow object not accepted by port; must be grid-cell"
++msgstr ""
++
++msgid "flow object not accepted by port; only a single character flow object accepted"
++msgstr ""
++
++msgid "flow object not accepted by port; in a table, only either table-part flow objects or table-column flow objects followed by table-row or table-cell flow objects are allowed"
++msgstr ""
++
++msgid "flow object not accepted by port; only table-row or table-cell flow objects accepted"
++msgstr ""
++
++msgid "flow object not accepted by port; only table-column flow objects followed by table-row or table-cell flow objects allowd"
++msgstr ""
++
++msgid "flow object not accepted by port; only table-cell flow objects accepted"
++msgstr ""
++
++msgid "priority-expression must be a number"
++msgstr ""
++
++msgid "query-expression must be a node-list"
++msgstr ""
++
++msgid "Sorry, non-integral priorities not implemented"
++msgstr ""
++
+diff -Nur openjade-1.3.3-pre1.orig/po/quot.sed openjade-1.3.3-pre1/po/quot.sed
+--- openjade-1.3.3-pre1.orig/po/quot.sed	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/quot.sed	Fri May 31 16:57:57 2002
+@@ -0,0 +1,6 @@
++s/"\([^"]*\)"/‚Äú\1‚Äù/g
++s/`\([^`']*\)'/‚Äò\1‚Äô/g
++s/ '\([^`']*\)' / ‚Äò\1‚Äô /g
++s/ '\([^`']*\)'$/ ‚Äò\1‚Äô/g
++s/^'\([^`']*\)' /‚Äò\1‚Äô /g
++s/‚Äú‚Äù/""/g
+diff -Nur openjade-1.3.3-pre1.orig/po/remove-potcdate.sin openjade-1.3.3-pre1/po/remove-potcdate.sin
+--- openjade-1.3.3-pre1.orig/po/remove-potcdate.sin	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/remove-potcdate.sin	Fri May 31 16:57:57 2002
+@@ -0,0 +1,19 @@
++# Sed script that remove the POT-Creation-Date line in the header entry
++# from a POT file.
++#
++# The distinction between the first and the following occurrences of the
++# pattern is achieved by looking at the hold space.
++/^"POT-Creation-Date: .*"$/{
++x
++# Test if the hold space is empty.
++s/P/P/
++ta
++# Yes it was empty. First occurrence. Remove the line.
++g
++d
++bb
++:a
++# The hold space was nonempty. Following occurrences. Do nothing.
++x
++:b
++}
+Binary files openjade-1.3.3-pre1.orig/po/sv.gmo and openjade-1.3.3-pre1/po/sv.gmo differ
+diff -Nur openjade-1.3.3-pre1.orig/po/sv.po openjade-1.3.3-pre1/po/sv.po
+--- openjade-1.3.3-pre1.orig/po/sv.po	Thu Jan  1 01:00:00 1970
++++ openjade-1.3.3-pre1/po/sv.po	Fri May 31 17:42:25 2002
+@@ -0,0 +1,795 @@
++# Swedish translations for OpenJade 1.4.
++msgid ""
++msgstr ""
++"Project-Id-Version: OpenJade 1.4\n"
++"POT-Creation-Date: 2002-05-31 14:56+0000\n"
++"PO-Revision-Date: 1999-12-08 23:03+01:00\n"
++"Last-Translator: Peter Nilsson <pnidv96@student.vxu.se>\n"
++"Language-Team: Swedish <sv@li.org>\n"
++"MIME-Version:: 1.0\n"
++"Content-Type: text/plain; charset=ISO-8859-1\n"
++"Content-Transfer-Encoding: 8bit\n"
++"POT-Created-Date: 1999-12-08 21:56+0000\n"
++
++# HtmlMessages
++msgid "cannot open output file %1 (%2)"
++msgstr "kan inte ˆppna filen %1 fˆr utdata (%2)"
++
++# JadeMessages
++msgid "unknown output type %1"
++msgstr "ok‰nd utdatatyp %1"
++
++msgid "empty output filename"
++msgstr "tomt filnamn fˆr utdatafilen"
++
++msgid "Use the backend %1."
++msgstr ""
++
++# JadeMessages
++msgid "Send output to %1."
++msgstr "Skicka utdata till %1."
++
++msgid "FILE"
++msgstr ""
++
++msgid "TYPE"
++msgstr ""
++
++msgid "could not convert system identifier %1 to a single filename"
++msgstr "kan inte gˆra om systemidentifieraren %1 till ett filnamn"
++
++msgid ""
++"missing table column flow object (table-auto-width feature not fully "
++"supported)"
++msgstr ""
++
++# RtfMessages
++msgid "nested tables are not allowed in RTF"
++msgstr "n‰stlade tabeller ‰r inte tillÂtna i RTF"
++
++msgid "could not embed %1 with clsid %2"
++msgstr "kan inte b‰dda in %1 med clsid %2"
++
++# TeXMessages
++msgid ""
++"TeX backend does not currently support references to page numbers of nodes "
++"other than elements"
++msgstr "TeX stˆder inte ‰nnu sidreferenser till andra noder ‰n element"
++
++msgid ""
++"TeX backend does not currently support links to nodes other than elements"
++msgstr "TeX stˆder inte ‰nnu l‰nkar till andra noder ‰n element"
++
++msgid "TeX backend does not currently support links to entities"
++msgstr "TeX stˆder inte ‰nnu l‰nkar till entiteter"
++
++msgid "TeX backend does not currently support links to other SGML documents"
++msgstr "TeX stˆder inte ‰nnu l‰nkar till andra SGML-dokument"
++
++msgid "TeX backend does not currently support HyTime linkends"
++msgstr "TeX stˆder inte ‰nnu HyTime-l‰nkar"
++
++msgid "TeX backend does not currently support TEI links"
++msgstr "TeX stˆder inte ‰nnu TEI-l‰nkar"
++
++msgid "TeX backend does not currently support glyph substitution tables"
++msgstr "TeX stˆder inte ‰nnu glyph-ers‰ttningstabeller"
++
++# DssslAppMessages
++msgid "%1 version %2"
++msgstr "%1 version %2"
++
++msgid "no DSSSL specification: use -d to specify"
++msgstr "ingen DSSSL-specifikation: anv‰nd -d fˆr att ange en"
++
++msgid ""
++"no applicable processing instruction with title %1; available titles: %2"
++msgstr ""
++
++msgid ""
++"Options with a \"doc-\"/\"spec-\" prefix apply only to the document/"
++"specification."
++msgstr ""
++
++msgid "Enable experimental DSSSL extensions."
++msgstr ""
++
++msgid "Debug mode."
++msgstr ""
++
++msgid "Use DSSSL specification %1."
++msgstr "Anv‰nd DSSSL-specifikation %1."
++
++#, fuzzy
++msgid "Use DSSSL specification with title %1."
++msgstr "Anv‰nd DSSSL-specifikation %1."
++
++msgid "Pretend that %1 appeared in the specification."
++msgstr ""
++
++msgid "Strict DSSSL compliance mode."
++msgstr ""
++
++msgid "Show open entities in error messages."
++msgstr ""
++
++msgid "Show open elements in error messages."
++msgstr ""
++
++msgid "Show error numbers in error messages."
++msgstr ""
++
++msgid "Show references in error messages."
++msgstr ""
++
++msgid "Define parameter entity %1 as \"INCLUDE\"."
++msgstr ""
++
++msgid "Enable warning %1."
++msgstr ""
++
++msgid "SYSID"
++msgstr ""
++
++msgid "DEFINITION"
++msgstr ""
++
++msgid "NAME"
++msgstr ""
++
++# InterpreterMessages
++msgid "unexpected end of file"
++msgstr "ov‰ntat filslut"
++
++msgid "invalid character"
++msgstr "otillÂtet tecken"
++
++msgid "invalid character after '#'"
++msgstr "otillÂtet tecken efter \"#\""
++
++msgid "unknown #! named constant %1"
++msgstr "ok‰nd #!-konstant %1"
++
++msgid "unexpected token %1"
++msgstr "ov‰ntat token %1"
++
++msgid "string with no closing quote"
++msgstr "str‰ng utan avslutande citattecken"
++
++msgid "missing closing parenthesis"
++msgstr "hˆgerparentes saknas"
++
++msgid "invalid number %1"
++msgstr "ogiltigt tal %1"
++
++msgid "invalid AFII glyph identifier %1"
++msgstr "ogiltig AFFI-glyph-identifierare %1"
++
++msgid "call of non-function object %1"
++msgstr "anrop av objekt som inte ‰r function %1"
++
++msgid "too many arguments for function"
++msgstr "fˆr mÂnga argument till funktion"
++
++msgid "odd number of keyword/value arguments"
++msgstr "udda antal nyckelord/v‰rde-argument"
++
++msgid "missing argument for function call"
++msgstr "argument saknas till funktionsanrop"
++
++msgid "syntactic keyword %1 used as variable"
++msgstr "syntaktiskt nyckelord %1 anv‰nt som variabel"
++
++msgid "reference to undefined variable %1"
++msgstr "referens till odefinierad variabel %1"
++
++msgid "no character with name %1"
++msgstr "inget tecken med namn %1"
++
++msgid "unknown top level form %1"
++msgstr "ok‰nd toppnivÂ-form %1"
++
++msgid "bad form %1 in mode group"
++msgstr "otillÂten form %1 i mode-grupp"
++
++msgid "identifier %1 already defined in same part"
++msgstr "identifieraren %1 redan definierad i denna del"
++
++msgid "first definition was here"
++msgstr "fˆrsta definitionen ‰r h‰r"
++
++msgid "loop in specification of value of %1"
++msgstr "specifikation av v‰rde fˆr %1 fˆrorsakar loop"
++
++msgid "argument out of range"
++msgstr "argument ej i giltigt omrÂde"
++
++msgid "loop in specification of value of unit %1"
++msgstr "specifikation av v‰rde fˆr mÂttenheten %1 fˆrorsakar loop"
++
++msgid "bad value specified for unit %1"
++msgstr "felaktigt v‰rde angivet fˆr mÂttenheten %1"
++
++msgid "unit %1 already defined in same part"
++msgstr "mÂttenheten %1 redan definierad i denna del"
++
++msgid "quantity %1 undefined"
++msgstr "mÂttenheten %1 odefinierad"
++
++msgid "incompatible dimensions"
++msgstr "okompatibla dimensioner"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a boolean"
++msgstr ""
++"%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r inte ett booleskt v‰rde"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a pair"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r inte ett par"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a list"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r ingen lista"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a symbol"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r ingen symbol"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a string"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r ingen str‰ng"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a string or symbol"
++msgstr ""
++"%2 argumentet till primitiven %1 ‰r av fel typ: ‰r ingen str‰ng eller symbol"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a char"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r inget tecken"
++
++#, fuzzy
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not an ISO8601 time string"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r ingen str‰ng"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a style"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 inget stilobjekt"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an exact integer"
++msgstr ""
++"%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r inget exakt heltal"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a quantity"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r ingen kvantitet"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a color-space"
++msgstr ""
++"%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r inte av typen color-"
++"space"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a number"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r inget tal"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a sosofo"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r ingen sosofo"
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not an optional singleton "
++"node list"
++msgstr ""
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not a singleton node list"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a node list"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r ingen nodlista"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a named node list"
++msgstr ""
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not a length or length-spec"
++msgstr ""
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not a quantity or length-spec"
++msgstr ""
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not an integer or the symbol "
++"\"force\""
++msgstr ""
++"%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r inget heltal eller "
++"symbolen \"force\""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an address"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r ingen adress"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a glyph-id"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a glyph-subst-table"
++msgstr ""
++
++msgid ""
++"%2 argument for primitive %1 of wrong type: %3 not a list of pairs of glyph-"
++"ids"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a procedure"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r ingen procedur"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a vector"
++msgstr "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r ingen vektor"
++
++msgid "root rule already defined in same part with same importance"
++msgstr ""
++
++msgid "initial value already declared for characteristic %1 in same part"
++msgstr ""
++
++msgid "first declaration was here"
++msgstr ""
++
++msgid "%1 is not a valid keyword in a style expression"
++msgstr ""
++
++msgid "%1 is not a valid keyword in a make expression for flow object class %2"
++msgstr ""
++
++msgid "%1 is not the name of any flow object class"
++msgstr ""
++
++msgid ""
++"content expression cannot be specified in make expression for atomic flow "
++"object class %1"
++msgstr ""
++
++msgid "value for \"label:\" not a symbol"
++msgstr ""
++
++msgid "no port for label %1"
++msgstr ""
++
++msgid "invalid content map"
++msgstr ""
++
++msgid "content map references non-existent port %1"
++msgstr ""
++
++msgid "invalid value for %1 characteristic"
++msgstr ""
++
++msgid "no clause in cond expression matched"
++msgstr ""
++
++msgid "no clause in case expression matched %1"
++msgstr ""
++
++msgid "expected \"else\" not %1"
++msgstr "v‰ntade \"else\", inte %1"
++
++msgid ""
++"sorry, cannot handle unresolvable quantities in datums in case expression"
++msgstr ""
++
++msgid "%1"
++msgstr ""
++
++msgid "division by zero"
++msgstr ""
++
++msgid "procedure does not have %1 keyword argument"
++msgstr ""
++
++msgid "argument not a keyword"
++msgstr ""
++
++msgid ""
++"specification document does not have the DSSSL architecture as a base "
++"architecture"
++msgstr ""
++
++msgid ""
++"specification document did not contain a style-specification-body element"
++msgstr ""
++
++msgid "unknown character name %1"
++msgstr ""
++
++msgid "attempt to use current node when there is none"
++msgstr ""
++
++msgid "attempt to process node in illegal context"
++msgstr ""
++
++msgid "radix must be 2, 8, 10 or 16"
++msgstr ""
++
++msgid "this context requires a sosofo"
++msgstr ""
++
++msgid "this context requires a style object"
++msgstr ""
++
++msgid "procedure can only be used in evaluation of characteristic value"
++msgstr ""
++
++msgid "%1 color requires three arguments"
++msgstr ""
++
++msgid "arguments for %1 color must be numbers"
++msgstr ""
++
++msgid "arguments for %1 color must be in the range 0 to 1"
++msgstr ""
++
++msgid "result of procedure in %1 color must be a number"
++msgstr ""
++
++msgid "unknown color-space family %1"
++msgstr ""
++
++msgid "%1 color-space family does not take any arguments"
++msgstr ""
++
++msgid "invalid parameters for %1 color-space family"
++msgstr ""
++
++msgid "%1 is not a pre-defined inherited characteristic"
++msgstr ""
++
++msgid "invalid number format %1"
++msgstr ""
++
++msgid "invalid character %1 in public identifier"
++msgstr ""
++
++msgid "debug %1"
++msgstr ""
++
++msgid "circular use of specification parts"
++msgstr ""
++
++msgid "no style-specification or external-specification with ID %1"
++msgstr ""
++
++msgid ""
++"document did not contain any style-specifications or external-specifications"
++msgstr ""
++
++msgid "table-cell flow object not inside a table"
++msgstr ""
++
++msgid "table-row flow object not inside a table"
++msgstr ""
++
++msgid "no value for node property %1"
++msgstr ""
++
++msgid "value returned by procedure was not a node-list"
++msgstr ""
++
++msgid "called from here"
++msgstr ""
++
++msgid "called from here...(%1 calls omitted)"
++msgstr ""
++
++msgid "node processing loop detected"
++msgstr ""
++
++msgid "unquote-splicing expression does not evaluate to a list"
++msgstr ""
++
++msgid "object is read-only"
++msgstr ""
++
++msgid "assignment to top-level variable %1"
++msgstr ""
++
++msgid "invalid call to continuation"
++msgstr ""
++
++msgid "empty generic identifier in pattern"
++msgstr ""
++
++msgid "pattern is not a list"
++msgstr ""
++
++msgid "%1 cannot be used as a generic identifier in a pattern"
++msgstr ""
++
++msgid "%1 cannot occur in a pattern"
++msgstr ""
++
++msgid "value missing for qualifier in pattern"
++msgstr ""
++
++msgid "unknown pattern qualifier %1"
++msgstr ""
++
++msgid "bad value %1 for %2 qualifier in pattern"
++msgstr ""
++
++msgid "repeat qualifier not allowed inside children qualifier"
++msgstr ""
++
++msgid "bad value for attributes qualifier in pattern"
++msgstr ""
++
++msgid "characteristic %1 applied in style rule with same specificity"
++msgstr ""
++
++msgid "other style rule is here"
++msgstr ""
++
++msgid "node matches more than one pattern with the same specificity"
++msgstr ""
++
++msgid "reference to uninitialized variable %1"
++msgstr ""
++
++msgid "circular use of actual value of characteristic %1"
++msgstr ""
++
++msgid "characteristic %1 already defined in same part"
++msgstr ""
++
++msgid "flow object class %1 already defined in same part"
++msgstr ""
++
++msgid "mode %1 not defined"
++msgstr ""
++
++msgid "duplicate character name %1"
++msgstr ""
++
++msgid "duplicate SDATA entity name %1"
++msgstr ""
++
++msgid "duplicate SDATA entity text %1"
++msgstr ""
++
++msgid "unsupported declaration will be ignored"
++msgstr ""
++
++msgid "unsupported character repertoire %1 will be ignored"
++msgstr ""
++
++msgid "error in declaration element"
++msgstr ""
++
++msgid "%1 is not a valid identifier"
++msgstr ""
++
++msgid "error in language definition"
++msgstr ""
++
++msgid "no current language"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a language"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a positive integer"
++msgstr ""
++"%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r inget positivt heltal"
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an integer"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a keyword"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not an alist"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a list of characters"
++msgstr ""
++
++msgid "%2 argument for primitive %1 has wrong length"
++msgstr ""
++
++msgid "quantity %1 can't be represented exactly"
++msgstr ""
++
++msgid "default language already declared in this part"
++msgstr ""
++
++msgid "%1 not a language as required in a default-language-declaration"
++msgstr ""
++
++msgid "%1 not a valid unit name"
++msgstr ""
++
++msgid "%1 not a valid character name"
++msgstr ""
++
++msgid "%1 not a valid character number"
++msgstr ""
++
++msgid "unknown character property %1"
++msgstr ""
++
++msgid "error in character property declaration"
++msgstr ""
++
++msgid "character property %1 already declared in same part"
++msgstr ""
++
++msgid "added value for character property %1 already declared in same part"
++msgstr ""
++
++msgid "previous declaration was here"
++msgstr ""
++
++msgid "value returned by procedure was not a sosofo"
++msgstr ""
++
++msgid "loop in specification of value of character property %1"
++msgstr ""
++
++msgid "value for character property %1 of wrong type: %2 not an integer"
++msgstr ""
++
++msgid ""
++"value for character property %1 of wrong type: %2 not an integer or the "
++"value \"#f\""
++msgstr ""
++
++msgid "%1 not a style or transformation language feature"
++msgstr ""
++
++msgid "undeclared use of feature %1"
++msgstr ""
++
++msgid "feature %1 not supported"
++msgstr ""
++
++msgid "feature %1 only partially supported"
++msgstr ""
++
++msgid "only allowed in style language"
++msgstr ""
++
++msgid "only allowed in transformation language"
++msgstr ""
++
++msgid "style and transformation language parts mixed"
++msgstr ""
++
++msgid "specification is marked as partial"
++msgstr ""
++
++msgid "grove plan excluding module %1 not supported"
++msgstr ""
++
++msgid "grove plan including module %1 not supported"
++msgstr ""
++
++msgid "%1 not an SGML property set module"
++msgstr ""
++
++msgid ""
++"Function for char-map characteristic returned non-char object %2 for "
++"character %1"
++msgstr ""
++
++msgid ""
++"value for character property %1 of wrong type: %2 not a public identifier or "
++"the value \"#f\""
++msgstr ""
++
++msgid "variable %1 occurs more than once in bindings"
++msgstr ""
++
++msgid "exactly one of node:, subgrove: and class: needed"
++msgstr ""
++
++msgid "add:, null:, remove:, children:, sub: make no sense with subgrove:"
++msgstr ""
++
++msgid "remove: makes no sense with class:"
++msgstr ""
++
++msgid "%2 argument for primitive %1 of wrong type: %3 not a subgrove-spec"
++msgstr ""
++
++msgid "wrong type: %1 not a list of create-specs"
++msgstr ""
++
++msgid "wrong type: %1 not a create-spec or list of create-specs"
++msgstr ""
++
++msgid "query expression: %1 not a node list"
++msgstr ""
++
++msgid "priority expression: %1 not an exact integer"
++msgstr ""
++
++msgid ""
++"flow objects at the root must be all of class scroll or all of class page-"
++"sequence or simple-page-sequence"
++msgstr ""
++
++msgid "current flow parent has no principal port"
++msgstr ""
++
++msgid "this flow object requires a paragraph as an ancestor flow object"
++msgstr ""
++
++msgid "flow object not accepted by port; only inline flow objects accepted"
++msgstr ""
++
++msgid "flow object not accepted by port; only display flow objects accepted"
++msgstr ""
++
++msgid ""
++"flow object not accepted by port; only display or inline flow objects "
++"accepted"
++msgstr ""
++
++msgid ""
++"flow object not accepted in a paragraph; only inline, display or paragraph-"
++"break flow objects accepted"
++msgstr ""
++
++msgid ""
++"a side-by-side flow object only accepts side-by-side-item flow objects as "
++"children"
++msgstr ""
++
++msgid ""
++"flow object not accepted by port; only math-sequence, unmath, subscript, "
++"superscript, script, mark, fence, fraction, radical, math-operator, grid, "
++"character and alignment-point flow objects accepted"
++msgstr ""
++
++msgid "flow object not accepted by port; must be grid-cell"
++msgstr ""
++
++msgid ""
++"flow object not accepted by port; only a single character flow object "
++"accepted"
++msgstr ""
++
++msgid ""
++"flow object not accepted by port; in a table, only either table-part flow "
++"objects or table-column flow objects followed by table-row or table-cell "
++"flow objects are allowed"
++msgstr ""
++
++msgid ""
++"flow object not accepted by port; only table-row or table-cell flow objects "
++"accepted"
++msgstr ""
++
++msgid ""
++"flow object not accepted by port; only table-column flow objects followed by "
++"table-row or table-cell flow objects allowd"
++msgstr ""
++
++msgid "flow object not accepted by port; only table-cell flow objects accepted"
++msgstr ""
++
++msgid "priority-expression must be a number"
++msgstr ""
++
++msgid "query-expression must be a node-list"
++msgstr ""
++
++msgid "Sorry, non-integral priorities not implemented"
++msgstr ""
++
++#~ msgid "TeX backend does not currently support HTML links"
++#~ msgstr "TeX stˆder inte ‰nnu HTML-l‰nkar"
++
++#~ msgid "syntactic keyword %1 not valid in call position"
++#~ msgstr "syntaktiskt nyckelord %1 inte tillÂtet i anropsposition"
++
++#~ msgid "symbol required (got %1)"
++#~ msgstr "symbol kr‰vs (ist‰llet fˆr Á1)"
++
++#~ msgid ""
++#~ "%2 argument for primitive %1 of wrong type: %3 neither a string not a "
++#~ "symbol"
++#~ msgstr ""
++#~ "%2 argumentet till primitiven %1 ‰r av fel typ: %3 ‰r varken en str‰ng "
++#~ "eller symbol"
+--- openjade-1.3.3-pre1/Makefile.in.orig	Mon Jun 30 12:49:15 2003
++++ openjade-1.3.3-pre1/Makefile.in	Mon Jun 30 13:07:04 2003
+@@ -54,6 +54,7 @@
+ 
+ $(TARGETS): FORCE
+ 	@$(MAKE) -f Makefile do=$@ $(dodirs)
++	@$(MAKE) -C po $@
+ 	@if test $@ = 'install'; then \
+ 	  $(LIBTOOL) --finish $(DESTDIR)$(libdir); \
+ 	  mkdir -p $(DESTDIR)$(datadir); \
