@@ -7,8 +7,8 @@ Release:	0.pre%{pre}.6
 Epoch:		1
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
+Source0:	http://dl.sourceforge.net/openjade/%{name}-%{version}-pre%{pre}.tar.gz
 # Source0-md5:	cbf3d8be3e3516dcb12b751de822b48c
-Source0:	http://dl.sourceforge.net/%{name}/%{name}-%{version}-pre%{pre}.tar.gz
 Patch0:		%{name}-nls-from-1.4.patch
 URL:		http://openjade.sourceforge.net/
 BuildRequires:	autoconf
