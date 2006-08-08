@@ -65,7 +65,7 @@ Biblioteki statyczne OpenJade.
 
 %prep
 %setup -q -n %{name}-%{version}-pre%{pre}
-%patch -p1
+%patch0 -p1
 
 %build
 LDFLAGS=""; export LDFLAGS
