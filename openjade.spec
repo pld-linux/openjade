@@ -1,6 +1,6 @@
 %define		pre	1
 Summary:	OpenJade - DSSSL parser
-Summary(pl):	OpenJade - parser DSSSL
+Summary(pl.UTF-8):   OpenJade - parser DSSSL
 Name:		openjade
 Version:	1.3.3
 Release:	0.pre%{pre}.7
@@ -34,13 +34,13 @@ BuildRoot:	%{tmpdir}/%{name}-%{version}-root-%(id -u -n)
 Jade (James' DSSSL Engine) is an implementation of the DSSSL style
 language. OpenJade is successor of Jade.
 
-%description -l pl
-Jade (James' DSSSL Engine) jest implementacj± parsera DSSSL. OpenJade
-jest nastêpc± Jade.
+%description -l pl.UTF-8
+Jade (James' DSSSL Engine) jest implementacjÄ… parsera DSSSL. OpenJade
+jest nastÄ™pcÄ… Jade.
 
 %package devel
 Summary:	OpenJade header files
-Summary(pl):	Pliki nag³ówkowe do bibliotek OpenJade
+Summary(pl.UTF-8):   Pliki nagÅ‚Ã³wkowe do bibliotek OpenJade
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 Requires:	/sbin/ldconfig
@@ -48,19 +48,19 @@ Requires:	/sbin/ldconfig
 %description devel
 Openjade header files.
 
-%description devel -l pl
-Pliki nag³ówkowe do bibliotek OpenJade.
+%description devel -l pl.UTF-8
+Pliki nagÅ‚Ã³wkowe do bibliotek OpenJade.
 
 %package static
 Summary:	OpenJade static libraries
-Summary(pl):	Biblioteki statyczne OpenJade
+Summary(pl.UTF-8):   Biblioteki statyczne OpenJade
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
 
 %description static
 OpenJade static libraries.
 
-%description static -l pl
+%description static -l pl.UTF-8
 Biblioteki statyczne OpenJade.
 
 %prep
