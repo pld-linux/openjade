@@ -1,6 +1,6 @@
 %define		pre	1
 Summary:	OpenJade - DSSSL parser
-Summary(pl.UTF-8):   OpenJade - parser DSSSL
+Summary(pl.UTF-8):	OpenJade - parser DSSSL
 Name:		openjade
 Version:	1.3.3
 Release:	0.pre%{pre}.7
@@ -40,7 +40,7 @@ jest następcą Jade.
 
 %package devel
 Summary:	OpenJade header files
-Summary(pl.UTF-8):   Pliki nagłówkowe do bibliotek OpenJade
+Summary(pl.UTF-8):	Pliki nagłówkowe do bibliotek OpenJade
 Group:		Development/Libraries
 Requires:	%{name} = %{epoch}:%{version}-%{release}
 Requires:	/sbin/ldconfig
@@ -53,7 +53,7 @@ Pliki nagłówkowe do bibliotek OpenJade.
 
 %package static
 Summary:	OpenJade static libraries
-Summary(pl.UTF-8):   Biblioteki statyczne OpenJade
+Summary(pl.UTF-8):	Biblioteki statyczne OpenJade
 Group:		Development/Libraries
 Requires:	%{name}-devel = %{epoch}:%{version}-%{release}
 
