@@ -10,6 +10,7 @@ Group:		Applications/Publishing/SGML
 Source0:	http://dl.sourceforge.net/openjade/%{name}-%{version}-pre%{pre}.tar.gz
 # Source0-md5:	cbf3d8be3e3516dcb12b751de822b48c
 Patch0:		%{name}-nls-from-1.4.patch
+Patch1:		%{name}-as-needed.patch
 URL:		http://openjade.sourceforge.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -66,6 +67,7 @@ Biblioteki statyczne OpenJade.
 %prep
 %setup -q -n %{name}-%{version}-pre%{pre}
 %patch0 -p1
+%patch1 -p1
 
 %build
 LDFLAGS=""; export LDFLAGS
