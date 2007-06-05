@@ -1,13 +1,14 @@
-%define		pre	1
+%define		pre	pre1
+%define		_rel	8
 Summary:	OpenJade - DSSSL parser
 Summary(pl.UTF-8):	OpenJade - parser DSSSL
 Name:		openjade
 Version:	1.3.3
-Release:	0.pre%{pre}.7
+Release:	0.%{_pre}.%{_rel}
 Epoch:		1
 License:	Free (Copyright (C) 1999 The OpenJade group)
 Group:		Applications/Publishing/SGML
-Source0:	http://dl.sourceforge.net/openjade/%{name}-%{version}-pre%{pre}.tar.gz
+Source0:	http://dl.sourceforge.net/openjade/%{name}-%{version}-%{_pre}.tar.gz
 # Source0-md5:	cbf3d8be3e3516dcb12b751de822b48c
 Patch0:		%{name}-nls-from-1.4.patch
 Patch1:		%{name}-as-needed.patch
@@ -65,7 +66,7 @@ OpenJade static libraries.
 Biblioteki statyczne OpenJade.
 
 %prep
-%setup -q -n %{name}-%{version}-pre%{pre}
+%setup -q -n %{name}-%{version}-%{_pre}
 %patch0 -p1
 %patch1 -p1
 
