@@ -12,6 +12,7 @@ Source0:	http://dl.sourceforge.net/openjade/%{name}-%{version}-%{_pre}.tar.gz
 # Source0-md5:	cbf3d8be3e3516dcb12b751de822b48c
 Patch0:		%{name}-nls-from-1.4.patch
 Patch1:		%{name}-as-needed.patch
+Patch2:		%{name}-gcc4.patch
 URL:		http://openjade.sourceforge.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
@@ -69,6 +70,7 @@ Biblioteki statyczne OpenJade.
 %setup -q -n %{name}-%{version}-%{_pre}
 %patch0 -p1
 %patch1 -p1
+%patch2 -p1
 
 %build
 LDFLAGS=""; export LDFLAGS
