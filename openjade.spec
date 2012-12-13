@@ -1,5 +1,5 @@
 %define		_pre	pre1
-%define		_rel	10
+%define		_rel	11
 Summary:	OpenJade - DSSSL parser
 Summary(pl.UTF-8):	OpenJade - parser DSSSL
 Name:		openjade
@@ -138,6 +138,7 @@ fi
 %defattr(644,root,root,755)
 %doc COPYING ChangeLog NEWS README doc/*.htm jadedoc
 %attr(755,root,root) %{_bindir}/*
+%attr(755,root,root) %ghost %{_libdir}/lib*.so.0
 %attr(755,root,root) %{_libdir}/lib*.so.*.*
 %{_datadir}
 

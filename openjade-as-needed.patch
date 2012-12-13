@@ -1,11 +1,35 @@
 --- openjade-1.3.3-pre1/spgrove/Makefile.sub~	2002-11-15 23:46:50.000000000 +0100
 +++ openjade-1.3.3-pre1/spgrove/Makefile.sub	2007-02-18 12:49:43.000000000 +0100
-@@ -3,7 +3,7 @@
+@@ -1,9 +1,9 @@
+ LTVERSION=0:1:0
+ LIB=ospgrove
  INCLUDE=-I$(srcdir)/../grove
- DEPLIBS=-lm -L$(TOP)/grove -L$(TOP)/grove/.libs \
+-DEPLIBS=-lm -L$(TOP)/grove -L$(TOP)/grove/.libs \
++DEPLIBS=-lm -lstdc++ -losp -L$(TOP)/grove -L$(TOP)/grove/.libs \
  	-L$(TOP)/lib -L$(TOP)/lib/.libs \
 -	$(LIB_THREADS)
 +	$(LIB_THREADS) -logrove
  OBJS=GroveApp.o GroveBuilder.o SdNode.o
  GENSRCS=grove_inst.cxx
  
+--- openjade-1.3.3-pre1/grove/Makefile.sub~	2002-10-20 23:47:24.000000000 +0200
++++ openjade-1.3.3-pre1/grove/Makefile.sub	2012-12-13 12:41:32.550717196 +0100
+@@ -1,4 +1,4 @@
+ LTVERSION=0:1:0
+ LIB=ogrove
+-DEPLIBS=-lm
++DEPLIBS=-lm -lstdc++
+ OBJS=Node.o LocNode.o
+--- openjade-1.3.3-pre1/style/Makefile.sub~	2003-04-18 19:18:10.000000000 +0200
++++ openjade-1.3.3-pre1/style/Makefile.sub	2012-12-13 12:47:47.947370621 +0100
+@@ -1,8 +1,8 @@
+ LTVERSION=0:1:0
+ LIB=ostyle
+-DEPLIBS=-lm -L$(TOP)/grove -L$(TOP)/grove/.libs \
++DEPLIBS=-lm -losp -L$(TOP)/grove -L$(TOP)/grove/.libs \
+   -L$(TOP)/lib -L$(TOP)/lib/.libs \
+-  -L$(TOP)/spgrove -L$(TOP)/spgrove/.libs 
++  -L$(TOP)/spgrove -L$(TOP)/spgrove/.libs -lospgrove
+ OBJS=LangObj.o \
+   Collector.o \
+   DssslApp.o \
