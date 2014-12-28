@@ -16,7 +16,7 @@ Patch2:		%{name}-gcc4.patch
 URL:		http://openjade.sourceforge.net/
 BuildRequires:	autoconf
 BuildRequires:	automake
-BuildRequires:	gettext-devel
+BuildRequires:	gettext-tools
 BuildRequires:	libtool
 BuildRequires:	opensp-devel >= 2:1.5.1
 BuildRequires:	perl-base
