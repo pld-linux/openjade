@@ -1,5 +1,5 @@
 %define		_pre	pre1
-%define		_rel	11
+%define		_rel	12
 Summary:	OpenJade - DSSSL parser
 Summary(pl.UTF-8):	OpenJade - parser DSSSL
 Name:		openjade
