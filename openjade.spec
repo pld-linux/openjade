@@ -75,6 +75,8 @@ Biblioteki statyczne OpenJade.
 %patch3 -p1
 
 %build
+%{__sed} -i -e 's@AM_GNU_GETTEXT.*@AM_GNU_GETTEXT([external])@' \
+	config/configure.in
 LDFLAGS=""; export LDFLAGS
 ln -sf config/configure.in .
 # smr_SWITCH and OJ_SIZE_T_IS_UINT
