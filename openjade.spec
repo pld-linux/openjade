@@ -77,6 +77,8 @@ Biblioteki statyczne OpenJade.
 %build
 %{__sed} -i -e 's@AM_GNU_GETTEXT.*@AM_GNU_GETTEXT([external])@' \
 	config/configure.in
+# fix segfault https://bugzilla.redhat.com/show_bug.cgi?id=1306162
+export CXXFLAGS="%{rpmcxxflags} -fno-tree-dse"
 LDFLAGS=""; export LDFLAGS
 ln -sf config/configure.in .
 # smr_SWITCH and OJ_SIZE_T_IS_UINT
