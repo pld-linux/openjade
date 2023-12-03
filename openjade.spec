@@ -1,5 +1,5 @@
 %define		_pre	pre1
-%define		_rel	12
+%define		_rel	13
 Summary:	OpenJade - DSSSL parser
 Summary(pl.UTF-8):	OpenJade - parser DSSSL
 Name:		openjade
@@ -87,9 +87,17 @@ tail -n +3349 config/aclocal.m4 | head -n 64 > acinclude.m4
 %{__libtoolize}
 %{__aclocal}
 %{__autoconf}
+# Ugly hack to avoid error:
+# configure: error: cannot find required auxiliary files: compile missing
+#
+# Proper way would be to use automake which creates these files,
+# but then it fails complaining that no Makefile.am exists
+cd config
+touch compile missing
+cd ..
 %configure \
---enable-default-catalog=%{_sysconfdir}/sgml/catalog \
---enable-default-search-path=%{_prefix}/share/sgml \
+	--enable-default-catalog=%{_sysconfdir}/sgml/catalog \
+	--enable-default-search-path=%{_prefix}/share/sgml \
 	--enable-mif \
 	--enable-html \
 	--enable-threads \
